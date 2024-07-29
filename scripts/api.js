@@ -8,7 +8,7 @@ export function api(endpoint, method, data = undefined, customHeader = undefined
 
         axios({
             method,
-            url: "http://localhost:3000/" + endpoint,
+            url: "http://minecraft.baramex.me:3000" + endpoint,
             data,
             headers: customHeader,
             responseType,
@@ -16,7 +16,6 @@ export function api(endpoint, method, data = undefined, customHeader = undefined
         }).then(response => {
             res(response.data);
         }).catch(err => {
-            console.log(err);
             const response = err.response;
             if (!response) return rej(new Error());
             const status = response.status;
@@ -28,7 +27,7 @@ export function api(endpoint, method, data = undefined, customHeader = undefined
             }
             else {
                 const message = response.data;
-                rej(new Error(message));
+                rej(new Error(message?.error || message));
             }
         });
     });

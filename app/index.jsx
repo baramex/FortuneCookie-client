@@ -4,10 +4,12 @@ import { useEffect, useRef, useState } from 'react';
 import { isAuthenticated, register } from '../scripts/authentification';
 import { getUser } from '../scripts/user';
 import { clearCachedSession, setCachedUser } from '../scripts/cache';
+import { useRouter } from 'expo-router';
 
-export default function App({ navigation }) {
+export default function App({ }) {
     const [loading, setLoading] = useState(true);
     const [username, setUsername] = useState("");
+    const router = useRouter();
 
     useEffect(() => {
         (async () => {
@@ -15,7 +17,7 @@ export default function App({ navigation }) {
                 const user = await getUser();
                 if (!user) await clearCachedSession();
                 await setCachedUser(user);
-                navigation.navigate("Home");
+                router.replace("/home");
             }
             else {
                 setLoading(false);
@@ -30,7 +32,7 @@ export default function App({ navigation }) {
                 : <>
                     <Text className="text-2xl">Bienvenue</Text>
                     <TextInput onChangeText={setUsername} defaultValue={username} placeholder="Entrez votre nom d'utilisateur" className="border-2 border-gray-300 mt-3 px-4 py-1.5 rounded-md" />
-                    <Pressable onPress={() => onRegister(setLoading, username, navigation)} className="flex flex-row gap-x-2 items-center justify-center py-1.5 px-4 mt-2">
+                    <Pressable onPress={() => onRegister(setLoading, username, router)} className="flex flex-row gap-x-2 items-center justify-center py-1.5 px-4 mt-2">
                         <CircleArrowIcon className="w-6 h-6 text-black" />
                         <Text>Continuer</Text>
                     </Pressable>
@@ -39,14 +41,14 @@ export default function App({ navigation }) {
     );
 }
 
-async function onRegister(setLoading, username, navigation) {
+async function onRegister(setLoading, username, router) {
     setLoading(true);
     try {
         const user = await register(username);
         await setCachedUser(user);
-        navigation.navigate("Home");
+        router.replace("/home");
     } catch (error) {
         setLoading(false);
-        Alert.alert('Création de compte', error.message || error || "Une erreur s'est produite.");
+        Alert.alert('Création de compte', error?.message || error || "Une erreur s'est produite.");
     }
 }
