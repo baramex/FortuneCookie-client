@@ -13,14 +13,18 @@ export default function App({ }) {
 
     useEffect(() => {
         (async () => {
-            if (await isAuthenticated()) {
-                const user = await getUser();
-                if (!user) await clearCachedSession();
-                await setCachedUser(user);
-                router.replace("/home");
-            }
-            else {
-                setLoading(false);
+            try {
+                if (await isAuthenticated()) {
+                    const user = await getUser();
+                    if (!user) await clearCachedSession();
+                    await setCachedUser(user);
+                    router.replace("/home");
+                }
+                else {
+                    setLoading(false);
+                }
+            } catch (error) {
+                showAlert();
             }
         })();
     }, []);
@@ -39,6 +43,13 @@ export default function App({ }) {
                 </>}
         </View>
     );
+}
+
+function showAlert() {
+    Alert.alert('Authentification', "Une erreur inattendue s'est produite, merci de réessayer ultérieurement.", [{
+        text: 'OK',
+        onPress: showAlert
+    }], { cancelable: false });
 }
 
 async function onRegister(setLoading, username, router) {
