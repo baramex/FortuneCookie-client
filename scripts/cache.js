@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export function getCachedUser() {
-    return JSON.parse(AsyncStorage.getItem("user"));
+export async function getCachedUser() {
+    return JSON.parse(await AsyncStorage.getItem("user"));
 }
 
 export async function setCachedUser(user) {

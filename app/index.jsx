@@ -1,6 +1,6 @@
 import { ActivityIndicator, Alert, Pressable, Text, TextInput, View } from 'react-native';
 import { CircleArrowIcon } from '../components/miscellaneous/Icons';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { isAuthenticated, register } from '../scripts/authentification';
 import { getUser } from '../scripts/user';
 import { clearCachedSession, setCachedUser } from '../scripts/cache';
@@ -18,14 +18,16 @@ export default function App({ }) {
                     const user = await getUser();
                     if (!user) await clearCachedSession();
                     await setCachedUser(user);
-                    router.replace("/home");
                 }
                 else {
                     setLoading(false);
+                    return;
                 }
             } catch (error) {
-                showAlert();
+                return showAlert();
             }
+
+            router.replace("/home");
         })();
     }, []);
 
@@ -35,7 +37,7 @@ export default function App({ }) {
                 <ActivityIndicator size="large" />
                 : <>
                     <Text className="text-2xl">Bienvenue</Text>
-                    <TextInput onChangeText={setUsername} defaultValue={username} placeholder="Entrez votre nom d'utilisateur" className="border-2 border-gray-300 mt-3 px-4 py-1.5 rounded-md" />
+                    <TextInput onChangeText={setUsername} defaultValue={username} placeholder="Entrez votre nom d'utilisateur" className="border-2 border-zinc-300 mt-3 px-4 py-1.5 rounded-md" />
                     <Pressable onPress={() => onRegister(setLoading, username, router)} className="flex flex-row gap-x-2 items-center justify-center py-1.5 px-4 mt-2">
                         <CircleArrowIcon className="w-6 h-6 text-black" />
                         <Text>Continuer</Text>

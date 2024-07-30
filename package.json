@@ -11,6 +11,7 @@
   "dependencies": {
     "@react-native-async-storage/async-storage": "^1.24.0",
     "axios": "^1.7.2",
+    "clsx": "^2.1.1",
     "expo": "^51.0.22",
     "expo-constants": "~16.0.2",
     "expo-linking": "~6.3.1",
