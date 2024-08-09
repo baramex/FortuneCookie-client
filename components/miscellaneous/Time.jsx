@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
 
-export default function Countdown({ date }) {
+export default function Countdown({ date, run }) {
     const [time, setTime] = useState(date - Date.now());
 
     useEffect(() => {
         const interval = setInterval(() => {
             setTime(date.getTime() - Date.now());
+            if (date.getTime() - Date.now() <= 0) {
+                run();
+            }
         }, 1000);
         return () => clearInterval(interval);
     }, []);
