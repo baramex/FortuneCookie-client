@@ -4,7 +4,7 @@ import { getCachedUser, setCachedUser } from "../../scripts/cache";
 import Countdown from "../../components/miscellaneous/Time";
 import { DropBombIcon } from "../../components/miscellaneous/Icons";
 import clsx from "clsx";
-import { Accuracy, GeofencingEventType, hasStartedLocationUpdatesAsync, startGeofencingAsync, stopGeofencingAsync, useForegroundPermissions, watchPositionAsync } from "expo-location";
+import { Accuracy, GeofencingEventType, hasStartedLocationUpdatesAsync, startGeofencingAsync, startLocationUpdatesAsync, stopGeofencingAsync, stopLocationUpdatesAsync, useBackgroundPermissions, useForegroundPermissions, watchPositionAsync } from "expo-location";
 import { defineTask } from "expo-task-manager";
 import { getBombs } from "../../scripts/bomb";
 import PlaceABombModal from "./PlaceABomb";
@@ -12,6 +12,7 @@ import PlaceABombModal from "./PlaceABomb";
 export default function Home() {
     const [user, setUser] = useState(null);
     const [fgLocationStatus, requestFgPermission] = useForegroundPermissions();
+    const [locationStatus, requestPermission] = useBackgroundPermissions();
     const [closeBombs, setCloseBombs] = useState(null);
 
     const [placeABomb, setPlaceABomb] = useState(false);
@@ -21,27 +22,34 @@ export default function Home() {
     }, []);
 
     useEffect(() => {
-        if (!fgLocationStatus) return;
+        if (!fgLocationStatus || !locationStatus) return;
         if (fgLocationStatus.granted) {
-            watchPositionAsync({ timeInterval: 60000, distanceInterval: 1000, accuracy: Accuracy.Balanced }, loc => {
-                getBombs(loc.coords.longitude, loc.coords.latitude).then(b => {
-                    setCloseBombs(b);
+            if (locationStatus.granted) {
+                watchPositionAsync({ timeInterval: 60000, distanceInterval: 1000, accuracy: Accuracy.Balanced }, loc => {
+                    getBombs(loc.coords.longitude, loc.coords.latitude).then(b => {
+                        setCloseBombs(b);
 
-                    if (b.length === 0) {
-                        hasStartedLocationUpdatesAsync("TASK_GEOFENCING").then(a => {
-                            if (a) {
-                                stopGeofencingAsync("TASK_GEOFENCING");
-                            }
-                        })
-                    }
-                    else startGeofencingAsync("TASK_GEOFENCING", b.map(a => ({ identifier: a.id, latitude: a.lat, longitude: a.lon, notifyOnExit: false, radius: a.radius })));
+                        if (b.length === 0) {
+                            hasStartedLocationUpdatesAsync("TASK_GEOFENCING").then(a => {
+                                if (a) {
+                                    stopGeofencingAsync("TASK_GEOFENCING");
+                                }
+                            });
+                        }
+                        else startGeofencingAsync("TASK_GEOFENCING", b.map(a => ({ identifier: a.id, latitude: a.lat, longitude: a.lon, notifyOnExit: false, radius: a.radius })));
+                    }).catch(e => {
+                        Alert.alert("Récupération des bombes", e?.message || e || "Une erreur s'est produite.");
+                    });
                 });
-            });
+            }
+            else {
+                requestPermission();
+            }
         }
         else {
             requestFgPermission();
         }
-    }, [fgLocationStatus]);
+    }, [fgLocationStatus, locationStatus]);
 
     const newDayDate = new Date();
     newDayDate.setUTCHours(0, 0, 0, 0);
@@ -49,7 +57,7 @@ export default function Home() {
 
     const locationEnabled = fgLocationStatus?.granted && locationStatus?.granted;
 
-    return (<View className={clsx("mt-12 flex-1 flex items-center", (!user || !locationEnabled) && "justify-center")}>
+    return (<View className={clsx("mt-6 flex-1 flex items-center", (!user || !locationEnabled) && "justify-center")}>
         {user ? !locationEnabled ?
             <Text className="text-2xl">Veuillez autoriser la localisation pour continuer.</Text>
             : <>
@@ -79,6 +87,7 @@ defineTask("TASK_GEOFENCING", ({ data: { eventType, region }, error }) => {
         return;
     }
     if (eventType === GeofencingEventType.Enter) {
+        // background: envoyer notification
         // foreground: afficher popup
         console.log("enter", region);
     }
