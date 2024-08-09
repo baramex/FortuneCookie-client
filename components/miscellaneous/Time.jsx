@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Text } from "react-native";
 
 export default function Countdown({ date }) {
     const [time, setTime] = useState(date - Date.now());

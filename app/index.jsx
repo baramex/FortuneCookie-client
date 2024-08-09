@@ -15,8 +15,12 @@ export default function App({ }) {
         (async () => {
             try {
                 if (await isAuthenticated()) {
-                    const user = await getUser();
-                    if (!user) await clearCachedSession();
+                    const user = await getUser().catch(() => { });
+                    if (!user) {
+                        await clearCachedSession();
+                        setLoading(false);
+                        return;
+                    }
                     await setCachedUser(user);
                 }
                 else {

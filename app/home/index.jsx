@@ -76,10 +76,10 @@ export default function Home() {
         {user ? !locationEnabled ?
             <Text className="text-2xl">Veuillez autoriser la localisation pour continuer.</Text>
             : <>
-                <PlaceABombModal visible={placeABomb} setVisible={setPlaceABomb} />
+                <PlaceABombModal setUser={setUser} visible={placeABomb} setVisible={setPlaceABomb} />
                 <Text className="text-2xl">Bonjour {user?.username}</Text>
                 <Text className="mt-2 text-zinc-700">Vous avez <Text className="bg-zinc-600 text-white"> {user?.remaining_bombs} </Text> /3 bombes restantes.</Text>
-                {user?.remaining_bombs < 3 && <View className="rounded-full bg-red-600 px-4 py-1 mt-1"><Text className="text-xs text-white font-medium">+1 dans <Countdown date={newDayDate} /></Text></View>}
+                {user?.remaining_bombs < 3 && <View className="rounded-full bg-red-600 px-4 py-1 mt-2"><Text className="text-xs text-white font-medium">+1 dans <Countdown date={newDayDate} /></Text></View>}
                 <Pressable onPress={() => setPlaceABomb(true)} className={clsx("rounded-md mt-5 text-xl px-6 py-2 flex flex-row gap-x-2 justify-center items-center", user?.remaining_bombs <= 0 ? "bg-zinc-500" : "bg-zinc-700")} disabled={user?.remaining_bombs <= 0}>
                     <DropBombIcon className={clsx("w-6 h-6", user?.remaining_bombs <= 0 ? "fill-zinc-300" : "fill-white")} />
                     <Text className={user?.remaining_bombs <= 0 ? "text-zinc-300" : "text-white"}>Placer une bombe</Text>

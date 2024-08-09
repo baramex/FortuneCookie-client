@@ -1,23 +1,51 @@
 import { getCurrentPositionAsync, LocationAccuracy } from "expo-location";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, Alert, Modal, Pressable, Text, TextInput, View } from "react-native";
-import MapView, { Marker } from "react-native-maps";
-import { DropBombIcon } from "../../components/miscellaneous/Icons";
+import { ActivityIndicator, Alert, Modal, Pressable, ScrollView, Text, TextInput, View } from "react-native";
+import MapView, { Circle, Marker } from "react-native-maps";
+import { DropBombIcon, XMarkIcon } from "../../components/miscellaneous/Icons";
 import { plantBomb } from "../../scripts/bomb";
+import { getUser } from "../../scripts/user";
+import clsx from "clsx";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { setCachedUser } from "../../scripts/cache";
 
-export default function PlaceABombModal({ visible, setVisible }) {
+const radiusOptions = [
+    {
+        value: 0.01,
+        name: "10m",
+        description: "Par exemple: à l'intérieur d'un bâtiment ou un endroit précis"
+    },
+    {
+        value: 0.1,
+        name: "100m",
+        description: "Par exemple: dans un quartier, un petit village ou un parc"
+    },
+    {
+        value: 1,
+        name: "1 km",
+        description: "Par exemple: dans une ville ou un lieu peu précis"
+    },
+    {
+        value: 5,
+        name: "5 km",
+        description: "Par exemple: dans un autre pays, une autre ville, ou à la campagne"
+    }
+];
+
+export default function PlaceABombModal({ visible, setVisible, setUser }) {
     const [message, setMessage] = useState("");
     const [location, setLocation] = useState(null);
     const [loading, setLoading] = useState(false);
-    const [radius, setRadius] = useState(0.05);
+    const [radius, setRadius] = useState(0.1);
 
     useEffect(() => {
         if (visible) {
-            getCurrentPositionAsync({ accuracy: LocationAccuracy.High }).then(setLocation);
+            getCurrentPositionAsync({ accuracy: LocationAccuracy.Highest }).then(setLocation).catch(e => {
+                Alert.alert('Placement de bombe', e?.message || e || "Une erreur s'est produite.");
+                setVisible(false);
+            });
         }
     }, [visible]);
-
-    console.log(location);
 
     return (<Modal
         animationType="slide"
@@ -26,34 +54,86 @@ export default function PlaceABombModal({ visible, setVisible }) {
             setVisible(false)
         }}>
         {loading || !location ? <ActivityIndicator className="flex justify-center h-full" size="large" /> :
-            <View className="px-4 pt-12">
-                <Text className="text-zinc-700 text-xl">Placer une bombe</Text>
-                <Text className="text-3xl mt-2">Préparez vos crayons explosifs !</Text>
-                <TextInput className="p-2 border-zinc-700 my-4 border rounded-md h-32" placeholder="Votre message" multiline={true} numberOfLines={6} onChangeText={setMessage} defaultValue={message} maxLength={4096} />
-                <MapView region={{ latitude: location.coords.latitude, longitude: location.coords.longitude, latitudeDelta: 0.005, longitudeDelta: 0.005, }} className="h-36">
-                    <Marker
-                        coordinate={{ latitude: location.coords.latitude, longitude: location.coords.longitude }}
-                        title="Position de la bombe"
-                    />
-                </MapView>
-                <Pressable onPress={() => placeBomb(location, message, radius, setLoading, setVisible)} className="rounded-md bg-zinc-700 mt-5 text-xl px-6 py-2 flex flex-row gap-x-2 justify-center items-center">
-                    <DropBombIcon className="w-6 h-6 fill-white" />
-                    <Text className="text-white">Placer la bombe</Text>
-                </Pressable>
-                <Pressable onPress={() => setVisible(false)} className="mx-auto mt-4">
-                    <Text className="underline text-zinc-700">Annuler</Text>
-                </Pressable>
-            </View>
+            <SafeAreaView>
+                <ScrollView className="px-4">
+                    <View className="mt-12 flex flex-row justify-between items-center">
+                        <Text className="text-zinc-700 text-xl">Placer une bombe</Text>
+                        <Pressable onPress={() => setVisible(false)}>
+                            <XMarkIcon className="h-6 w-6 text-black" />
+                        </Pressable>
+                    </View>
+                    <Text className="text-3xl mt-2">Préparez vos crayons explosifs !</Text>
+                    <TextInput className="p-2 border-zinc-400 my-4 border rounded-md h-32" placeholder="Votre message" multiline={true} numberOfLines={6} onChangeText={setMessage} defaultValue={message} maxLength={4096} />
+                    <Text className="text-lg">Sélectionnez le rayon de la bombe</Text>
+                    <View role="radiogroup" className="-space-y-px rounded-md bg-white mt-1 mb-3">
+                        {radiusOptions.map((setting, settingIdx) => (
+                            <Pressable
+                                role="radio"
+                                key={setting.value}
+                                onPress={() => setRadius(setting.value)}
+                                data-checked={setting.value === radius}
+                                className={clsx(
+                                    settingIdx === 0 ? 'rounded-tl-md rounded-tr-md' : '',
+                                    settingIdx === radiusOptions.length - 1 ? 'rounded-bl-md rounded-br-md' : '',
+                                    'group flex flex-row cursor-pointer border p-2 focus:outline-none',
+                                    setting.value === radius ? "border-zinc-400 bg-zinc-100" : "border-zinc-200"
+                                )}
+                            >
+                                <View
+                                    aria-hidden="true"
+                                    className={clsx("mt-0.5 flex h-4 w-4 shrink-0 cursor-pointer items-center justify-center rounded-full border",
+                                        setting.value === radius ? "border-transparent bg-zinc-600" : "border-zinc-300 bg-white"
+                                    )}
+                                >
+                                    <View className="h-1.5 w-1.5 rounded-full bg-white" />
+                                </View>
+                                <View className="pl-3 flex-1">
+                                    <Text className="text-sm font-medium text-zinc-900">
+                                        {setting.name}
+                                    </Text>
+                                    <Text className="text-sm text-zinc-500">
+                                        {setting.description}
+                                    </Text>
+                                </View>
+                            </Pressable>
+                        ))}
+                    </View>
+                    <MapView mapType="satellite" region={{ latitude: location.coords.latitude, longitude: location.coords.longitude, latitudeDelta: 1 / 50 * radius, longitudeDelta: 1 / 50 * radius }} className="h-40">
+                        <Marker
+                            coordinate={{ latitude: location.coords.latitude, longitude: location.coords.longitude }}
+                            title="Position de la bombe"
+                        />
+                        <Circle
+                            center={{ latitude: location.coords.latitude, longitude: location.coords.longitude }}
+                            radius={radius * 1000}
+                            fillColor="rgba(255,0,0,.15)"
+                            strokeColor="darkred"
+                        />
+                    </MapView>
+                    <Pressable onPress={() => placeBomb(location, message, radius, setLoading, setUser, setMessage, setVisible)} className="rounded-md bg-zinc-700 mt-5 text-xl px-6 py-2 flex flex-row gap-x-2 justify-center items-center">
+                        <DropBombIcon className="w-6 h-6 fill-white" />
+                        <Text className="text-white">Placer la bombe</Text>
+                    </Pressable>
+                    <Pressable onPress={() => setVisible(false)} className="mx-auto mt-4 mb-6">
+                        <Text className="underline text-zinc-700">Annuler</Text>
+                    </Pressable>
+                </ScrollView>
+            </SafeAreaView>
         }
     </Modal>);
 }
 
-async function placeBomb(location, message, radius, setLoading, setVisible) {
+async function placeBomb(location, message, radius, setLoading, setUser, setMessage, setVisible) {
     setLoading(true);
     try {
         await plantBomb(location.coords.longitude, location.coords.latitude, message, radius);
         setLoading(false);
         setVisible(false);
+        setMessage("");
+        const user = await getUser();
+        await setCachedUser(user);
+        setUser(user);
+        Alert.alert("Placement de bombe", "Votre bombe a été placée avec succès !! Vous serez averti si quelqu'un est passé par là.")
     } catch (error) {
         setLoading(false);
         Alert.alert('Placement de bombe', error?.message || error || "Une erreur s'est produite.");
