@@ -13,7 +13,7 @@ export default function DefuseBombModal({ bomb, setBomb, setDefusedBomb }) {
         if (bomb) {
             getCurrentPositionAsync({ accuracy: LocationAccuracy.Highest }).then(setLocation).catch(e => {
                 Alert.alert('Désarmorçage de bombe', e?.message || e || "Une erreur s'est produite.");
-                setVisible(false);
+                setBomb(null);
             });
         }
     }, [bomb]);
@@ -22,7 +22,7 @@ export default function DefuseBombModal({ bomb, setBomb, setDefusedBomb }) {
         animationType="slide"
         visible={!!bomb}
         onRequestClose={() => {
-            setVisible(false)
+            setBomb(null);
         }}>
         {loading || !location || !bomb ? <ActivityIndicator className="flex justify-center h-full" size="large" /> :
             <View className="px-4 pt-24">
@@ -64,7 +64,7 @@ export default function DefuseBombModal({ bomb, setBomb, setDefusedBomb }) {
 async function defuseBomb(bomb, setLoading, setBomb, setDefusedBomb) {
     setLoading(true);
     try {
-        const defuse = await defuseBombApi(bomb.id, bomb.longitude, bomb.latitude);
+        const defuse = await defuseBombApi(bomb.identifier, bomb.longitude, bomb.latitude);
         setDefusedBomb(defuse);
         setBomb(null);
     } catch (error) {

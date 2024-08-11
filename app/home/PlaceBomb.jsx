@@ -51,7 +51,7 @@ export default function PlaceBombModal({ visible, setVisible, setUser }) {
         animationType="slide"
         visible={visible}
         onRequestClose={() => {
-            setVisible(false)
+            setVisible(false);
         }}>
         {loading || !location ? <ActivityIndicator className="flex justify-center h-full" size="large" /> :
             <SafeAreaView>
