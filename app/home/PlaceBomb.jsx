@@ -32,7 +32,7 @@ const radiusOptions = [
     }
 ];
 
-export default function PlaceABombModal({ visible, setVisible, setUser }) {
+export default function PlaceBombModal({ visible, setVisible, setUser }) {
     const [message, setMessage] = useState("");
     const [location, setLocation] = useState(null);
     const [loading, setLoading] = useState(false);
