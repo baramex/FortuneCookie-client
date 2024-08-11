@@ -21,6 +21,8 @@ export default function Home() {
 
     const [defuseBomb, setDefuseBomb] = useState(null);
 
+    const [defusedBomb, setDefusedBomb] = useState(null);
+
     useEffect(() => {
         // Tâche lorsque le téléphone rentre dans la zone de portée d'une bombe
         defineTask("TASK_GEOFENCING", ({ data: { eventType, region }, error }) => {
@@ -85,7 +87,7 @@ export default function Home() {
             <Text className="text-2xl">Veuillez autoriser la localisation pour continuer.</Text>
             : <>
                 <PlaceBombModal setUser={setUser} visible={placeBomb} setVisible={setPlaceBomb} />
-                <DefuseBombModal bomb={defuseBomb} setBomb={setDefuseBomb} />
+                <DefuseBombModal bomb={defuseBomb} setBomb={setDefuseBomb} setDefusedBomb={setDefusedBomb} />
                 <Text className="text-2xl">Bonjour {user?.username}</Text>
                 <Text className="mt-2 text-zinc-700">Vous avez <Text className="bg-zinc-600 text-white"> {user?.remaining_bombs} </Text> /3 bombes restantes.</Text>
                 {user?.remaining_bombs < 3 && <View className="rounded-full bg-red-600 px-4 py-1 mt-2"><Text className="text-xs text-white font-medium">+1 dans <Countdown run={() => {

@@ -40,7 +40,6 @@ export function XMarkIcon(props) {
 export function DropBombIcon(props) {
     return (
         <Svg
-            id="_x32_"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 512 512"
             xmlSpace="preserve"
@@ -88,10 +87,7 @@ export function DefuseBombIcon(props) {
     return (
         <Svg
             xmlns="http://www.w3.org/2000/svg"
-            x="0px"
-            y="0px"
-            width="100%"
-            viewBox="0 0 752 752"
+            viewBox="50 50 652 652"
             xmlSpace="preserve"
             {...props}
         >

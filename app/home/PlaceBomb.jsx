@@ -127,7 +127,6 @@ async function placeBomb(location, message, radius, setLoading, setUser, setMess
     setLoading(true);
     try {
         await plantBomb(location.coords.longitude, location.coords.latitude, message, radius);
-        setLoading(false);
         setVisible(false);
         setMessage("");
         const user = await getUser();
@@ -135,7 +134,8 @@ async function placeBomb(location, message, radius, setLoading, setUser, setMess
         setUser(user);
         Alert.alert("Placement de bombe", "Votre bombe a été placée avec succès !! Vous serez averti si quelqu'un est passé par là.")
     } catch (error) {
-        setLoading(false);
         Alert.alert('Placement de bombe', error?.message || error || "Une erreur s'est produite.");
+    } finally {
+        setLoading(false);
     }
 } 

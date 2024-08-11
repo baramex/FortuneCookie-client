@@ -8,3 +8,7 @@ export async function getBombs(lon, lat) {
 export async function plantBomb(lon, lat, message, radius) {
     return api("/bombs", "POST", { lon, lat, message, radius }, { Authorization: `Bearer ${await getToken()}` });
 }
+
+export async function defuseBomb(id, lon, lat) {
+    return api(`/bombs/${id}/defuse`, "POST", { lon, lat }, { Authorization: `Bearer ${await getToken()}` });
+}
