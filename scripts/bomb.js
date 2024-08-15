@@ -12,3 +12,7 @@ export async function plantBomb(lon, lat, message, radius) {
 export async function defuseBomb(id, lon, lat) {
     return api(`/bombs/${id}/defuse`, "POST", { lon, lat }, { Authorization: `Bearer ${await getToken()}` });
 }
+
+export async function replyBomb(id, message) {
+    return api(`/bombs/${id}/reply`, "POST", { message }, { Authorization: `Bearer ${await getToken()}` });
+}

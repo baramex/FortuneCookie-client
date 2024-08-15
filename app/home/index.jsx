@@ -10,23 +10,64 @@ import { getBombs } from "../../scripts/bomb";
 import PlaceBombModal from "./PlaceBomb";
 import DefuseBombModal from "./DefuseBomb";
 import DefusedBombModal from "./DefusedBomb";
+import { getUserBombs, getUserDefuses } from "../../scripts/user";
 
 export default function Home() {
     const [user, setUser] = useState(null);
     const [fgLocationStatus, requestFgPermission] = useForegroundPermissions();
     const [locationStatus, requestPermission] = useBackgroundPermissions();
-    const [posJob, setPosJob] = useState(null);
-    const [closeBombs, setCloseBombs] = useState(null);
+    // La tâche pour observer la position
+    const [posJob, setPosJob] = useState(false);
 
+    // Les bombes à proximité
+    const [closeBombs, setCloseBombs] = useState(null);
+    // Les désamorçages de l'utilisateur
+    const [defuses, setDefuses] = useState(null);
+    // Les bombes de l'utilisateur
+    const [bombs, setBombs] = useState(null);
+
+    // Afficher ou non la modal pour placer une bombe
     const [placeBomb, setPlaceBomb] = useState(false);
 
+    // Bome qui peut être désarmocée (modal)
     const [defuseBomb, setDefuseBomb] = useState(null);
 
+    // Bombe désarmocée (modal)
     const [defusedBomb, setDefusedBomb] = useState(null);
 
+    // Récupérer les désarmoçages au début ou lorsqu'une nouvelle bombe est désarmocée
+    useEffect(() => {
+        if (!defusedBomb) {
+            getUserDefuses().then(setDefuses);
+        }
+    }, [defusedBomb]);
+
+    // Récupérer les bombes au début ou lorsqu'une noubelle bombe est placée
+    useEffect(() => {
+        if (!placeBomb) {
+            getUserBombs().then(setBombs);
+        }
+    }, [placeBomb]);
+
+    // Mettre à jour le geofencing lorsque les bombes à proximité changent
+    useEffect(() => {
+        if (!closeBombs) return;
+        if (closeBombs.length === 0) {
+            hasStartedLocationUpdatesAsync("TASK_GEOFENCING").then(a => {
+                if (a) {
+                    stopGeofencingAsync("TASK_GEOFENCING");
+                }
+            });
+        }
+        else {
+            startGeofencingAsync("TASK_GEOFENCING", closeBombs.map(a => ({ identifier: a.id.toString(), latitude: a.lat, longitude: a.lon, notifyOnExit: false, radius: a.radius * 1000 }))).catch(console.error);
+        }
+    }, [closeBombs]);
+
+    // Lorsqu'une bombe est désarmocée, la retirer des bombes à proximité
     useEffect(() => {
         if (defusedBomb) {
-            setCloseBombs(bombs => bombs.filter(b => b.id !== defusedBomb.bombId))
+            setCloseBombs(bombs => bombs.filter(b => b.id !== defusedBomb.bombId));
         }
     }, [defusedBomb]);
 
@@ -38,6 +79,7 @@ export default function Home() {
                 return;
             }
             if (eventType === GeofencingEventType.Enter) {
+                if (defusedBomb) return;
                 // background: envoyer notification
                 // foreground: afficher popup
                 setDefuseBomb(region);
@@ -50,6 +92,7 @@ export default function Home() {
         getCachedUser().then(setUser);
     }, []);
 
+    // Récupérer la permission de position et lancer une tâche pour observer la position et récupérer les bombes à proximité lorsqu'elle change
     useEffect(() => {
         if (!fgLocationStatus || !locationStatus || posJob) return;
         if (fgLocationStatus.granted) {
@@ -58,17 +101,6 @@ export default function Home() {
                 watchPositionAsync({ timeInterval: 60000, distanceInterval: 1000, accuracy: Accuracy.Balanced }, loc => {
                     getBombs(loc.coords.longitude, loc.coords.latitude).then(b => {
                         setCloseBombs(b);
-
-                        if (b.length === 0) {
-                            hasStartedLocationUpdatesAsync("TASK_GEOFENCING").then(a => {
-                                if (a) {
-                                    stopGeofencingAsync("TASK_GEOFENCING");
-                                }
-                            });
-                        }
-                        else {
-                            startGeofencingAsync("TASK_GEOFENCING", b.map(a => ({ identifier: a.id.toString(), latitude: a.lat, longitude: a.lon, notifyOnExit: false, radius: a.radius * 1000 }))).catch(console.error);
-                        }
                     }).catch(e => {
                         Alert.alert("Récupération des bombes", e?.message || e || "Une erreur s'est produite.");
                     });
@@ -83,6 +115,7 @@ export default function Home() {
         }
     }, [fgLocationStatus, locationStatus]);
 
+    // Date pour récupérer une bombe supplémentaire
     const newDayDate = new Date();
     newDayDate.setUTCHours(0, 0, 0, 0);
     newDayDate.setUTCDate(newDayDate.getUTCDate() + 1);
@@ -95,7 +128,7 @@ export default function Home() {
             : <>
                 <PlaceBombModal setUser={setUser} visible={placeBomb} setVisible={setPlaceBomb} />
                 <DefuseBombModal bomb={defuseBomb} setBomb={setDefuseBomb} setDefusedBomb={setDefusedBomb} />
-                <DefusedBombModal defusedBomb={defusedBomb} setDefusedBomb={setDefusedBomb} />
+                <DefusedBombModal defusedBomb={defusedBomb} setDefusedBomb={setDefusedBomb} setUser={setUser} />
                 <Text className="text-2xl">Bonjour {user?.username}</Text>
                 <Text className="mt-2 text-zinc-700">Vous avez <Text className="bg-zinc-600 text-white"> {user?.remaining_bombs} </Text> /3 bombes restantes.</Text>
                 {user?.remaining_bombs < 3 && <View className="rounded-full bg-red-600 px-4 py-1 mt-2"><Text className="text-xs text-white font-medium">+1 dans <Countdown run={() => {
@@ -113,3 +146,14 @@ export default function Home() {
         }
     </View>);
 }
+
+defineTask("TASK_GEOFENCING", ({ data: { eventType, region }, error }) => {
+    if (error) {
+        console.error(error);
+        return;
+    }
+    if (eventType === GeofencingEventType.Enter) {
+        // background: envoyer notification
+        console.log("enter bg", region);
+    }
+});

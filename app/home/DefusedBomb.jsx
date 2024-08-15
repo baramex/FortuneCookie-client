@@ -1,9 +1,13 @@
 import { useState } from "react";
-import { Modal, Pressable, SafeAreaView, ScrollView, Text, View } from "react-native";
-import { DefuseBombIcon, XMarkIcon } from "../../components/miscellaneous/Icons";
+import { ActivityIndicator, Alert, Modal, Pressable, SafeAreaView, ScrollView, Text, TextInput, View } from "react-native";
+import { DropBombIcon, XMarkIcon } from "../../components/miscellaneous/Icons";
+import { replyBomb } from "../../scripts/bomb";
+import { setCachedUser } from "../../scripts/cache";
+import { getUser } from "../../scripts/user";
 
-export default function DefusedBombModal({ defusedBomb, setDefusedBomb }) {
+export default function DefusedBombModal({ defusedBomb, setDefusedBomb, setUser }) {
     const [loading, setLoading] = useState(false);
+    const [message, setMessage] = useState("");
 
     return (<Modal
         animationType="none"
@@ -22,8 +26,11 @@ export default function DefusedBombModal({ defusedBomb, setDefusedBomb }) {
                     </View>
                     <Text className="text-xl">Message</Text>
                     <Text className="text-zinc-700 text-lg">{defusedBomb?.message}</Text>
-                    <Pressable onPress={() => { }} className="rounded-md bg-zinc-700 mt-5 text-xl px-6 py-2 flex flex-row gap-x-2 justify-center items-center">
-                        <DefuseBombIcon className="w-9 h-9 fill-white" />
+                    <Text className="text-xl mt-4">Votre réponse (optionnel)</Text>
+                    <TextInput className="p-2 border-zinc-400 my-3 border rounded-md h-32 text-lg" multiline={true} numberOfLines={6} onChangeText={setMessage} defaultValue={message} maxLength={4096} />
+                    <Text className="text-zinc-500">Répondre à une bombe replacera une bombe du même rayon à l'emplacement de découverte, et notifiera celui qui a posé la bombe. Mais elle pourra aussi être découverte par une autre personne.</Text>
+                    <Pressable onPress={() => reply(defusedBomb, message, setLoading, setMessage, setUser, setDefusedBomb)} className="rounded-md bg-zinc-700 mt-5 text-xl px-6 py-2 flex flex-row gap-x-2 justify-center items-center">
+                        <DropBombIcon className="w-9 h-9 fill-white" />
                         <Text className="text-white text-xl">Répondre</Text>
                     </Pressable>
                     <Pressable onPress={() => setDefusedBomb(null)} className="mx-auto mt-4 mb-6">
@@ -33,4 +40,21 @@ export default function DefusedBombModal({ defusedBomb, setDefusedBomb }) {
             </SafeAreaView>
         }
     </Modal >);
+}
+
+async function reply(defusedBomb, message, setLoading, setMessage, setUser, setDefusedBomb) {
+    setLoading(true);
+    try {
+        await replyBomb(defusedBomb.bombId, message);
+        setDefusedBomb(null);
+        setMessage("");
+        const user = await getUser();
+        await setCachedUser(user);
+        setUser(user);
+        Alert.alert("Réponse à une bombe", "Votre réponse a été plantée ! Si elle est découverte, vous serez averti !");
+    } catch (error) {
+        Alert.alert("Réponse à une bombe", error?.message || error || "Une erreur s'est produite.");
+    } finally {
+        setLoading(false);
+    }
 }

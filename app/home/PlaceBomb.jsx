@@ -63,7 +63,7 @@ export default function PlaceBombModal({ visible, setVisible, setUser }) {
                         </Pressable>
                     </View>
                     <Text className="text-3xl mt-2">Préparez vos crayons explosifs !</Text>
-                    <TextInput className="p-2 border-zinc-400 my-4 border rounded-md h-32" placeholder="Votre message" multiline={true} numberOfLines={6} onChangeText={setMessage} defaultValue={message} maxLength={4096} />
+                    <TextInput className="p-2 border-zinc-400 my-4 border rounded-md h-32 text-lg" placeholder="Votre message" multiline={true} numberOfLines={6} onChangeText={setMessage} defaultValue={message} maxLength={4096} />
                     <Text className="text-lg">Sélectionnez le rayon de la bombe</Text>
                     <View role="radiogroup" className="-space-y-px rounded-md bg-white mt-1 mb-3">
                         {radiusOptions.map((setting, settingIdx) => (
@@ -132,7 +132,7 @@ async function placeBomb(location, message, radius, setLoading, setUser, setMess
         const user = await getUser();
         await setCachedUser(user);
         setUser(user);
-        Alert.alert("Placement de bombe", "Votre bombe a été placée avec succès !! Vous serez averti si quelqu'un est passé par là.")
+        Alert.alert("Placement de bombe", "Votre bombe a été placée avec succès !! Vous serez averti si quelqu'un est passé par là.");
     } catch (error) {
         Alert.alert('Placement de bombe', error?.message || error || "Une erreur s'est produite.");
     } finally {
