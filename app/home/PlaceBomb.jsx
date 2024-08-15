@@ -8,29 +8,7 @@ import { getUser } from "../../scripts/user";
 import clsx from "clsx";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { setCachedUser } from "../../scripts/cache";
-
-const radiusOptions = [
-    {
-        value: 0.01,
-        name: "10m",
-        description: "Par exemple: à l'intérieur d'un bâtiment ou un endroit précis"
-    },
-    {
-        value: 0.1,
-        name: "100m",
-        description: "Par exemple: dans un quartier, un petit village ou un parc"
-    },
-    {
-        value: 1,
-        name: "1 km",
-        description: "Par exemple: dans une ville ou un lieu peu précis"
-    },
-    {
-        value: 5,
-        name: "5 km",
-        description: "Par exemple: dans un autre pays, une autre ville, ou à la campagne"
-    }
-];
+import { BOMB_RADIUS } from "../../constants/bombs";
 
 export default function PlaceBombModal({ visible, setVisible, setUser }) {
     const [message, setMessage] = useState("");
@@ -66,7 +44,7 @@ export default function PlaceBombModal({ visible, setVisible, setUser }) {
                     <TextInput className="p-2 border-zinc-400 my-4 border rounded-md h-32 text-lg" placeholder="Votre message" multiline={true} numberOfLines={6} onChangeText={setMessage} defaultValue={message} maxLength={4096} />
                     <Text className="text-lg">Sélectionnez le rayon de la bombe</Text>
                     <View role="radiogroup" className="-space-y-px rounded-md bg-white mt-1 mb-3">
-                        {radiusOptions.map((setting, settingIdx) => (
+                        {BOMB_RADIUS.map((setting, settingIdx) => (
                             <Pressable
                                 role="radio"
                                 key={setting.value}
@@ -74,7 +52,7 @@ export default function PlaceBombModal({ visible, setVisible, setUser }) {
                                 data-checked={setting.value === radius}
                                 className={clsx(
                                     settingIdx === 0 ? 'rounded-tl-md rounded-tr-md' : '',
-                                    settingIdx === radiusOptions.length - 1 ? 'rounded-bl-md rounded-br-md' : '',
+                                    settingIdx === BOMB_RADIUS.length - 1 ? 'rounded-bl-md rounded-br-md' : '',
                                     'group flex flex-row cursor-pointer border p-2 focus:outline-none',
                                     setting.value === radius ? "border-zinc-400 bg-zinc-100" : "border-zinc-200"
                                 )}

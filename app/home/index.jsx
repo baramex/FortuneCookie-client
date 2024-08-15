@@ -12,6 +12,7 @@ import DefuseBombModal from "./DefuseBomb";
 import DefusedBombModal from "./DefusedBomb";
 import { getUserBombs, getUserDefuses } from "../../scripts/user";
 import BombOverlay from "./BombOverlay";
+import BombModal from "./Bomb";
 
 export default function Home() {
     const [user, setUser] = useState(null);
@@ -29,12 +30,23 @@ export default function Home() {
 
     // Afficher ou non la modal pour placer une bombe
     const [placeBomb, setPlaceBomb] = useState(false);
-
     // Bome qui peut être désarmocée (modal)
     const [defuseBomb, setDefuseBomb] = useState(null);
-
     // Bombe désarmocée (modal)
     const [defusedBomb, setDefusedBomb] = useState(null);
+    // Visualiser une bombe
+    const [shownBomb, setShownBomb] = useState(null);
+
+    useEffect(() => {
+        if (typeof shownBomb === "number") {
+            if (bombs.some(b => b.id === shownBomb)) {
+                setShownBomb(bombs.find(b => b.id === shownBomb));
+            } else if (defuses.some(b => b.bomb_id === shownBomb)) {
+                const d = defuses.find(b => b.bomb_id === shownBomb);
+                setShownBomb({ defuse: d, lon: d.bomb_lon, lat: d.bomb_lat, radius: d.bomb_radius, state: d.bomb_state, message: d.bomb_message, created_at: d.created_at, reference: d.bomb_reference ? bombs?.some(b => b.id === d.bomb_reference) ? d.bomb_reference : undefined : undefined });
+            }
+        }
+    }, [shownBomb]);
 
     // Récupérer les désarmoçages au début ou lorsqu'une nouvelle bombe est désarmocée
     useEffect(() => {
@@ -130,6 +142,7 @@ export default function Home() {
                 <PlaceBombModal setUser={setUser} visible={placeBomb} setVisible={setPlaceBomb} />
                 <DefuseBombModal bomb={defuseBomb} setBomb={setDefuseBomb} setDefusedBomb={setDefusedBomb} />
                 <DefusedBombModal defusedBomb={defusedBomb} setDefusedBomb={setDefusedBomb} setUser={setUser} />
+                <BombModal bomb={shownBomb} setBomb={setShownBomb} />
                 <Text className="text-2xl">Bonjour {user?.username}</Text>
                 <Text className="mt-2 text-zinc-700">Vous avez <Text className="bg-zinc-600 text-white"> {user?.remaining_bombs} </Text> /3 bombes restantes.</Text>
                 {user?.remaining_bombs < 3 && <View className="rounded-full bg-red-600 px-4 py-1 mt-2"><Text className="text-xs text-white font-medium">+1 dans <Countdown run={() => {
@@ -146,13 +159,13 @@ export default function Home() {
                     <View className="h-1/2">
                         <Text className="text-3xl mb-1">Vos bombes</Text>
                         <ScrollView>
-                            {bombs ? bombs.length === 0 ? <Text className="text-zinc-600 mx-auto">Aucune</Text> : bombs.map(b => <BombOverlay key={b.id} bomb={b} />) : <ActivityIndicator />}
+                            {bombs ? bombs.length === 0 ? <Text className="text-zinc-600 mx-auto">Aucune</Text> : bombs.map(b => <BombOverlay key={b.id} setShownBomb={setShownBomb} bomb={b} />) : <ActivityIndicator />}
                         </ScrollView>
                     </View>
                     <View className="h-1/2">
                         <Text className="text-3xl mb-1">Vos désamorçages</Text>
                         <ScrollView>
-                            {defuses ? defuses.length === 0 ? <Text className="text-zinc-600 mx-auto">Aucun</Text> : defuses.map(d => <BombOverlay key={d.id} type="defuse" defuse={d} bomb={{ lon: d.bomb_lon, lat: d.bomb_lat, radius: d.bomb_radius, state: d.bomb_state, message: d.bomb_message, created_at: d.created_at, reference: d.bomb_reference ? bombs?.some(b => b.id === d.bomb_reference) ? d.bomb_reference : undefined : undefined }} />) : <ActivityIndicator />}
+                            {defuses ? defuses.length === 0 ? <Text className="text-zinc-600 mx-auto">Aucun</Text> : defuses.map(d => <BombOverlay key={d.id} setShownBomb={setShownBomb} type="defuse" defuse={d} bomb={{ lon: d.bomb_lon, lat: d.bomb_lat, radius: d.bomb_radius, state: d.bomb_state, message: d.bomb_message, created_at: d.created_at, reference: d.bomb_reference ? bombs?.some(b => b.id === d.bomb_reference) ? d.bomb_reference : undefined : undefined }} />) : <ActivityIndicator />}
                         </ScrollView>
                     </View>
                 </View>
@@ -161,14 +174,3 @@ export default function Home() {
         }
     </View>);
 }
-
-defineTask("TASK_GEOFENCING", ({ data: { eventType, region }, error }) => {
-    if (error) {
-        console.error(error);
-        return;
-    }
-    if (eventType === GeofencingEventType.Enter) {
-        // background: envoyer notification
-        console.log("enter bg", region);
-    }
-});
