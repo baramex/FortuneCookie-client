@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-export default function Countdown({ date, run }) {
+export function Countdown({ date, run }) {
     const [time, setTime] = useState(date - Date.now());
 
     useEffect(() => {
@@ -18,4 +18,8 @@ export default function Countdown({ date, run }) {
     const hours = Math.floor((time / (1000 * 60 * 60)) % 24);
 
     return (<>{hours.toString().padStart(2, "0")}h{minutes.toString().padStart(2, "0")}m</>);
+}
+
+export function FullDate({ date }) {
+    return (<>{date.getDate().toString().padStart(2, "0")}/{(date.getMonth() + 1).toString().padStart(2, "0")}/{date.getFullYear().toString().slice(2).padStart(2, "0")}</>)
 }

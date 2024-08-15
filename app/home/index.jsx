@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { ActivityIndicator, Alert, Pressable, Text, View } from "react-native";
+import { ActivityIndicator, Alert, Pressable, ScrollView, Text, View } from "react-native";
 import { getCachedUser, setCachedUser } from "../../scripts/cache";
-import Countdown from "../../components/miscellaneous/Time";
+import { Countdown } from "../../components/miscellaneous/Time";
 import { DropBombIcon } from "../../components/miscellaneous/Icons";
 import clsx from "clsx";
 import { Accuracy, GeofencingEventType, hasStartedLocationUpdatesAsync, startGeofencingAsync, startLocationUpdatesAsync, stopGeofencingAsync, stopLocationUpdatesAsync, useBackgroundPermissions, useForegroundPermissions, watchPositionAsync } from "expo-location";
@@ -11,6 +11,7 @@ import PlaceBombModal from "./PlaceBomb";
 import DefuseBombModal from "./DefuseBomb";
 import DefusedBombModal from "./DefusedBomb";
 import { getUserBombs, getUserDefuses } from "../../scripts/user";
+import BombOverlay from "./BombOverlay";
 
 export default function Home() {
     const [user, setUser] = useState(null);
@@ -38,14 +39,14 @@ export default function Home() {
     // Récupérer les désarmoçages au début ou lorsqu'une nouvelle bombe est désarmocée
     useEffect(() => {
         if (!defusedBomb) {
-            getUserDefuses().then(setDefuses);
+            getUserDefuses().then(d => setDefuses(d.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))));
         }
     }, [defusedBomb]);
 
     // Récupérer les bombes au début ou lorsqu'une noubelle bombe est placée
     useEffect(() => {
         if (!placeBomb) {
-            getUserBombs().then(setBombs);
+            getUserBombs().then(bo => setBombs(bo.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))));
         }
     }, [placeBomb]);
 
@@ -141,6 +142,20 @@ export default function Home() {
                     <Text className={user?.remaining_bombs <= 0 ? "text-zinc-300" : "text-white"}>Placer une bombe</Text>
                 </Pressable>
                 <Text className="mt-2 text-zinc-900">Il y a <Text className="bg-zinc-600 text-white"> {closeBombs?.length} </Text> bombes dans un rayon de 5 km.</Text>
+                <View className="w-full mt-6 px-4 flex-1 pb-4">
+                    <View className="h-1/2">
+                        <Text className="text-3xl mb-1">Vos bombes</Text>
+                        <ScrollView>
+                            {bombs ? bombs.length === 0 ? <Text className="text-zinc-600 mx-auto">Aucune</Text> : bombs.map(b => <BombOverlay key={b.id} bomb={b} />) : <ActivityIndicator />}
+                        </ScrollView>
+                    </View>
+                    <View className="h-1/2">
+                        <Text className="text-3xl mb-1">Vos désamorçages</Text>
+                        <ScrollView>
+                            {defuses ? defuses.length === 0 ? <Text className="text-zinc-600 mx-auto">Aucun</Text> : defuses.map(d => <BombOverlay key={d.id} type="defuse" defuse={d} bomb={{ lon: d.bomb_lon, lat: d.bomb_lat, radius: d.bomb_radius, state: d.bomb_state, message: d.bomb_message, created_at: d.created_at, reference: d.bomb_reference ? bombs?.some(b => b.id === d.bomb_reference) ? d.bomb_reference : undefined : undefined }} />) : <ActivityIndicator />}
+                        </ScrollView>
+                    </View>
+                </View>
             </>
             : <ActivityIndicator size="large" />
         }

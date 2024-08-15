@@ -49,7 +49,7 @@ export default function DefuseBombModal({ bomb, setBomb, setDefusedBomb }) {
                         title="Votre position"
                     />
                 </MapView>
-                <Pressable onPress={() => defuseBomb(bomb, setLoading, setBomb, setDefusedBomb)} className="rounded-md bg-zinc-700 mt-5 text-xl px-6 py-2 flex flex-row gap-x-2 justify-center items-center">
+                <Pressable onPress={() => defuseBomb(bomb, location, setLoading, setBomb, setDefusedBomb)} className="rounded-md bg-zinc-700 mt-5 text-xl px-6 py-2 flex flex-row gap-x-2 justify-center items-center">
                     <DefuseBombIcon className="w-9 h-9 fill-white" />
                     <Text className="text-white text-xl">Désarmocer</Text>
                 </Pressable>
@@ -61,10 +61,10 @@ export default function DefuseBombModal({ bomb, setBomb, setDefusedBomb }) {
     </Modal >);
 }
 
-async function defuseBomb(bomb, setLoading, setBomb, setDefusedBomb) {
+async function defuseBomb(bomb, location, setLoading, setBomb, setDefusedBomb) {
     setLoading(true);
     try {
-        const defuse = await defuseBombApi(bomb.identifier, bomb.longitude, bomb.latitude);
+        const defuse = await defuseBombApi(bomb.identifier, location.coords.longitude, location.coords.latitude);
         setDefusedBomb(defuse);
         setBomb(null);
     } catch (error) {
