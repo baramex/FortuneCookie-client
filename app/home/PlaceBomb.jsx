@@ -10,7 +10,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { setCachedUser } from "../../scripts/cache";
 import { BOMB_RADIUS } from "../../constants/bombs";
 
-export default function PlaceBombModal({ visible, setVisible, setUser }) {
+export default function PlaceBombModal({ visible, setVisible, setUser, setUpdate }) {
     const [message, setMessage] = useState("");
     const [location, setLocation] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -88,7 +88,7 @@ export default function PlaceBombModal({ visible, setVisible, setUser }) {
                             strokeColor="darkred"
                         />
                     </MapView>
-                    <Pressable onPress={() => placeBomb(location, message, radius, setLoading, setUser, setMessage, setVisible)} className="rounded-md bg-zinc-700 mt-5 text-xl px-6 py-2 flex flex-row gap-x-2 justify-center items-center">
+                    <Pressable onPress={() => placeBomb(location, message, radius, setLoading, setUser, setMessage, setVisible, setUpdate)} className="rounded-md bg-zinc-700 mt-5 text-xl px-6 py-2 flex flex-row gap-x-2 justify-center items-center">
                         <DropBombIcon className="w-6 h-6 fill-white" />
                         <Text className="text-white">Placer la bombe</Text>
                     </Pressable>
@@ -101,7 +101,7 @@ export default function PlaceBombModal({ visible, setVisible, setUser }) {
     </Modal>);
 }
 
-async function placeBomb(location, message, radius, setLoading, setUser, setMessage, setVisible) {
+async function placeBomb(location, message, radius, setLoading, setUser, setMessage, setVisible, setUpdate) {
     setLoading(true);
     try {
         await plantBomb(location.coords.longitude, location.coords.latitude, message, radius);
@@ -110,6 +110,7 @@ async function placeBomb(location, message, radius, setLoading, setUser, setMess
         const user = await getUser();
         await setCachedUser(user);
         setUser(user);
+        setUpdate(true);
         Alert.alert("Placement de bombe", "Votre bombe a été placée avec succès !! Vous serez averti si quelqu'un est passé par là.");
     } catch (error) {
         Alert.alert('Placement de bombe', error?.message || error || "Une erreur s'est produite.");

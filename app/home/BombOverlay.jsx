@@ -5,7 +5,7 @@ import { BOMB_STATES } from "../../constants/bombs";
 import { FullDate } from "../../components/miscellaneous/Time";
 
 export default function BombOverlay({ bomb, defuse, type = "bomb", setShownBomb }) {
-    return (<Pressable onPress={() => setShownBomb({ ...bomb, defuse })} className="flex flex-row w-full h-32 bg-zinc-100 rounded-lg overflow-hidden my-2">
+    return (<Pressable onPress={() => setShownBomb(bomb)} className="flex flex-row w-full h-28 bg-zinc-100 rounded-lg overflow-hidden my-2">
         <MapView mapType="satellite" region={{ latitude: bomb.lat, longitude: bomb.lon, latitudeDelta: 1 / 50 * bomb.radius, longitudeDelta: 1 / 50 * bomb.radius }} className="w-1/3" pitchEnabled={false} scrollEnabled={false} rotateEnabled={false} zoomTapEnabled={false} zoomEnabled={false}>
             <Marker
                 coordinate={{ latitude: bomb.lat, longitude: bomb.lon }}
@@ -29,7 +29,10 @@ export default function BombOverlay({ bomb, defuse, type = "bomb", setShownBomb 
                 </View>}
             </View>
             {bomb.reference && <View className="flex flex-row items-center mt-1">
-                <Text className="text-zinc-600">Réponse à une bombe</Text>
+                <Text className="text-zinc-600 italic">Réponse à une bombe</Text>
+            </View>}
+            {(bomb.reply_id && type === "defuse") && <View className="flex flex-row items-center mt-1">
+                <Text className="text-zinc-600 italic">Vous y avez répondu</Text>
             </View>}
             <Text className="text-zinc-900 truncate mt-1.5">{bomb.message}</Text>
         </View>

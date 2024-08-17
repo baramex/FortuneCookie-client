@@ -6,7 +6,7 @@ export function Countdown({ date, run }) {
     useEffect(() => {
         const interval = setInterval(() => {
             setTime(date.getTime() - Date.now());
-            if (date.getTime() - Date.now() <= 0) {
+            if (date.getTime() - Date.now() <= 0 && date.getTime() + 1000 - Date.now() > 0) {
                 run();
             }
         }, 1000);
@@ -21,5 +21,9 @@ export function Countdown({ date, run }) {
 }
 
 export function FullDate({ date }) {
-    return (<>{date.getDate().toString().padStart(2, "0")}/{(date.getMonth() + 1).toString().padStart(2, "0")}/{date.getFullYear().toString().slice(2).padStart(2, "0")}</>)
+    return (<>{date.getDate().toString().padStart(2, "0")}/{(date.getMonth() + 1).toString().padStart(2, "0")}/{date.getFullYear().toString().slice(2).padStart(2, "0")}</>);
+}
+
+export function DateTime({ date }) {
+    return (<>{date.getDate().toString().padStart(2, "0")}/{(date.getMonth() + 1).toString().padStart(2, "0")}/{date.getFullYear().toString().slice(2).padStart(2, "0")} à {date.getHours().toString().padStart(2, "0")}:{date.getMinutes().toString().padStart(2, "0")}</>);
 }

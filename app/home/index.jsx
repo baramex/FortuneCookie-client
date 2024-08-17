@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import { ActivityIndicator, Alert, Pressable, ScrollView, Text, View } from "react-native";
+import { ActivityIndicator, Alert, AppState, Pressable, ScrollView, Text, View } from "react-native";
 import { getCachedUser, setCachedUser } from "../../scripts/cache";
 import { Countdown } from "../../components/miscellaneous/Time";
 import { DropBombIcon } from "../../components/miscellaneous/Icons";
 import clsx from "clsx";
 import { Accuracy, GeofencingEventType, hasStartedLocationUpdatesAsync, startGeofencingAsync, startLocationUpdatesAsync, stopGeofencingAsync, stopLocationUpdatesAsync, useBackgroundPermissions, useForegroundPermissions, watchPositionAsync } from "expo-location";
 import { defineTask } from "expo-task-manager";
-import { getBombs } from "../../scripts/bomb";
+import { fromDefuseToBomb, getBombs } from "../../scripts/bomb";
 import PlaceBombModal from "./PlaceBomb";
 import DefuseBombModal from "./DefuseBomb";
 import DefusedBombModal from "./DefusedBomb";
@@ -20,6 +20,7 @@ export default function Home() {
     const [locationStatus, requestPermission] = useBackgroundPermissions();
     // La tâche pour observer la position
     const [posJob, setPosJob] = useState(false);
+    const [update, setUpdate] = useState(true);
 
     // Les bombes à proximité
     const [closeBombs, setCloseBombs] = useState(null);
@@ -42,25 +43,26 @@ export default function Home() {
             if (bombs.some(b => b.id === shownBomb)) {
                 setShownBomb(bombs.find(b => b.id === shownBomb));
             } else if (defuses.some(b => b.bomb_id === shownBomb)) {
-                const d = defuses.find(b => b.bomb_id === shownBomb);
-                setShownBomb({ defuse: d, lon: d.bomb_lon, lat: d.bomb_lat, radius: d.bomb_radius, state: d.bomb_state, message: d.bomb_message, created_at: d.created_at, reference: d.bomb_reference ? bombs?.some(b => b.id === d.bomb_reference) ? d.bomb_reference : undefined : undefined });
+                setShownBomb(fromDefuseToBomb(defuses.find(b => b.bomb_id === shownBomb), bombs));
             }
         }
     }, [shownBomb]);
 
     // Récupérer les désarmoçages au début ou lorsqu'une nouvelle bombe est désarmocée
     useEffect(() => {
-        if (!defusedBomb) {
+        if (update) {
+            setUpdate(false);
             getUserDefuses().then(d => setDefuses(d.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))));
         }
-    }, [defusedBomb]);
+    }, [update]);
 
     // Récupérer les bombes au début ou lorsqu'une noubelle bombe est placée
     useEffect(() => {
-        if (!placeBomb) {
+        if (update) {
+            setUpdate(false);
             getUserBombs().then(bo => setBombs(bo.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))));
         }
-    }, [placeBomb]);
+    }, [update]);
 
     // Mettre à jour le geofencing lorsque les bombes à proximité changent
     useEffect(() => {
@@ -97,6 +99,7 @@ export default function Home() {
                 // foreground: afficher popup
                 setDefuseBomb(region);
                 console.log("enter", region);
+                console.log(AppState.currentState);
             }
         });
     }, []);
@@ -128,6 +131,9 @@ export default function Home() {
         }
     }, [fgLocationStatus, locationStatus]);
 
+    console.log(bombs);
+    console.log(defuses);
+
     // Date pour récupérer une bombe supplémentaire
     const newDayDate = new Date();
     newDayDate.setUTCHours(0, 0, 0, 0);
@@ -139,10 +145,10 @@ export default function Home() {
         {user ? !locationEnabled ?
             <Text className="text-2xl">Veuillez autoriser la localisation pour continuer.</Text>
             : <>
-                <PlaceBombModal setUser={setUser} visible={placeBomb} setVisible={setPlaceBomb} />
-                <DefuseBombModal bomb={defuseBomb} setBomb={setDefuseBomb} setDefusedBomb={setDefusedBomb} />
-                <DefusedBombModal defusedBomb={defusedBomb} setDefusedBomb={setDefusedBomb} setUser={setUser} />
-                <BombModal bomb={shownBomb} setBomb={setShownBomb} />
+                <PlaceBombModal setUpdate={setUpdate} setUser={setUser} visible={placeBomb} setVisible={setPlaceBomb} />
+                <DefuseBombModal setUpdate={setUpdate} bomb={defuseBomb} setBomb={setDefuseBomb} setDefusedBomb={setDefusedBomb} />
+                <DefusedBombModal setUpdate={setUpdate} defusedBomb={defusedBomb} setDefusedBomb={setDefusedBomb} setUser={setUser} />
+                <BombModal setUpdate={setUpdate} setUser={setUser} defuse={shownBomb && defuses.find(a => a.bomb_id === shownBomb.id)} reply={shownBomb && shownBomb.reply_id ? defuses.some(a => a.bomb_id === shownBomb.reply_id) ? fromDefuseToBomb(defuses.find(a => a.bomb_id === shownBomb.reply_id), bombs) : bombs.find(b => b.id === shownBomb.reply_id) : undefined} bomb={shownBomb} setBomb={setShownBomb} />
                 <Text className="text-2xl">Bonjour {user?.username}</Text>
                 <Text className="mt-2 text-zinc-700">Vous avez <Text className="bg-zinc-600 text-white"> {user?.remaining_bombs} </Text> /3 bombes restantes.</Text>
                 {user?.remaining_bombs < 3 && <View className="rounded-full bg-red-600 px-4 py-1 mt-2"><Text className="text-xs text-white font-medium">+1 dans <Countdown run={() => {
@@ -156,7 +162,7 @@ export default function Home() {
                 </Pressable>
                 <Text className="mt-2 text-zinc-900">Il y a <Text className="bg-zinc-600 text-white"> {closeBombs?.length} </Text> bombes dans un rayon de 5 km.</Text>
                 <View className="w-full mt-6 px-4 flex-1 pb-4">
-                    <View className="h-1/2">
+                    <View className="h-1/2 pb-4">
                         <Text className="text-3xl mb-1">Vos bombes</Text>
                         <ScrollView>
                             {bombs ? bombs.length === 0 ? <Text className="text-zinc-600 mx-auto">Aucune</Text> : bombs.map(b => <BombOverlay key={b.id} setShownBomb={setShownBomb} bomb={b} />) : <ActivityIndicator />}
@@ -165,7 +171,7 @@ export default function Home() {
                     <View className="h-1/2">
                         <Text className="text-3xl mb-1">Vos désamorçages</Text>
                         <ScrollView>
-                            {defuses ? defuses.length === 0 ? <Text className="text-zinc-600 mx-auto">Aucun</Text> : defuses.map(d => <BombOverlay key={d.id} setShownBomb={setShownBomb} type="defuse" defuse={d} bomb={{ lon: d.bomb_lon, lat: d.bomb_lat, radius: d.bomb_radius, state: d.bomb_state, message: d.bomb_message, created_at: d.created_at, reference: d.bomb_reference ? bombs?.some(b => b.id === d.bomb_reference) ? d.bomb_reference : undefined : undefined }} />) : <ActivityIndicator />}
+                            {defuses ? defuses.length === 0 ? <Text className="text-zinc-600 mx-auto">Aucun</Text> : defuses.map(d => <BombOverlay key={d.id} setShownBomb={setShownBomb} type="defuse" defuse={d} bomb={fromDefuseToBomb(d, bombs)} />) : <ActivityIndicator />}
                         </ScrollView>
                     </View>
                 </View>

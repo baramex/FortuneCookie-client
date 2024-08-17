@@ -5,7 +5,7 @@ import { ActivityIndicator, Alert, Modal, Pressable, Text, View } from "react-na
 import MapView, { Circle, Marker } from "react-native-maps";
 import { defuseBomb as defuseBombApi } from "../../scripts/bomb";
 
-export default function DefuseBombModal({ bomb, setBomb, setDefusedBomb }) {
+export default function DefuseBombModal({ bomb, setBomb, setDefusedBomb, setUpdate }) {
     const [location, setLocation] = useState(null);
     const [loading, setLoading] = useState(false);
 
@@ -49,7 +49,7 @@ export default function DefuseBombModal({ bomb, setBomb, setDefusedBomb }) {
                         title="Votre position"
                     />
                 </MapView>
-                <Pressable onPress={() => defuseBomb(bomb, location, setLoading, setBomb, setDefusedBomb)} className="rounded-md bg-zinc-700 mt-5 text-xl px-6 py-2 flex flex-row gap-x-2 justify-center items-center">
+                <Pressable onPress={() => defuseBomb(bomb, location, setLoading, setBomb, setDefusedBomb, setUpdate)} className="rounded-md bg-zinc-700 mt-5 text-xl px-6 py-2 flex flex-row gap-x-2 justify-center items-center">
                     <DefuseBombIcon className="w-9 h-9 fill-white" />
                     <Text className="text-white text-xl">Désarmocer</Text>
                 </Pressable>
@@ -61,12 +61,13 @@ export default function DefuseBombModal({ bomb, setBomb, setDefusedBomb }) {
     </Modal >);
 }
 
-async function defuseBomb(bomb, location, setLoading, setBomb, setDefusedBomb) {
+async function defuseBomb(bomb, location, setLoading, setBomb, setDefusedBomb, setUpdate) {
     setLoading(true);
     try {
         const defuse = await defuseBombApi(bomb.identifier, location.coords.longitude, location.coords.latitude);
         setDefusedBomb(defuse);
         setBomb(null);
+        setUpdate(true);
     } catch (error) {
         Alert.alert("Désarmoçage de bombe", error?.message || error || "Une erreur s'est produite.")
     } finally {

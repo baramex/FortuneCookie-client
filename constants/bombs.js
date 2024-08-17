@@ -8,6 +8,11 @@ export const BOMB_STATES = {
         text: "Désamorcée",
         bgColor: "bg-zinc-900",
         textColor: "text-white"
+    },
+    3: {
+        text: "Répondue",
+        bgColor: "bg-blue-500",
+        textColor: "text-white"
     }
 }
 
