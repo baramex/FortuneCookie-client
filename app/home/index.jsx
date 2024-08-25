@@ -16,12 +16,17 @@ import BombModal from "./Bomb";
 import PushNotification from "react-native-push-notification";
 
 export default function Home() {
+    // Utilisateur mis en cache
     const [user, setUser] = useState(null);
+    // Permission pour la position lorsque l'application est en premier plan
     const [fgLocationStatus, requestFgPermission] = useForegroundPermissions();
+    // Permission pour la position en tout temps (aussi en arrière plan)
     const [locationStatus, requestPermission] = useBackgroundPermissions();
     // La tâche pour observer la position
     const [posJob, setPosJob] = useState(false);
+    // État lorsque les bombes et désamorçages de l'utilisateur sont mises à jour
     const [update, setUpdate] = useState(true);
+    // État lorsque les bombes à proximité sont mises à jour
     const [refreshBombs, setRefreshBombs] = useState(false);
 
     // Les bombes à proximité
@@ -40,6 +45,7 @@ export default function Home() {
     // Visualiser une bombe
     const [shownBomb, setShownBomb] = useState(null);
 
+    // Lorsque la bombe affichée est l'id de la bombe (et non sa valeur) alors elle est remplacée par sa valeur pour pouvoir être affichée (cas lorsqu'on clique sur "cette bombe" dans l'affichage d'une bombe)
     useEffect(() => {
         if (typeof shownBomb === "number") {
             if (bombs.some(b => b.id === shownBomb)) {
@@ -126,6 +132,7 @@ export default function Home() {
         });
     }, []);
 
+    // Récupérer l'utilisateur en cache pour le mettre dans l'état "user"
     useEffect(() => {
         getCachedUser().then(setUser);
     }, []);
@@ -169,16 +176,14 @@ export default function Home() {
                 Alert.alert("Récupération des bombes", e?.message || e || "Une erreur s'est produite.");
             });
         }
-    }, [refreshBombs])
-
-    console.log(bombs);
-    console.log(defuses);
+    }, [refreshBombs]);
 
     // Date pour récupérer une bombe supplémentaire
     const newDayDate = new Date();
     newDayDate.setUTCHours(0, 0, 0, 0);
     newDayDate.setUTCDate(newDayDate.getUTCDate() + 1);
 
+    // Décrit si les deux types de position sont acceptés
     const locationEnabled = fgLocationStatus?.granted && locationStatus?.granted;
 
     return (<View className={clsx("mt-6 flex-1 flex items-center", (!user || !locationEnabled) && "justify-center")}>

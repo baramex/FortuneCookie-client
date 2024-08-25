@@ -16,6 +16,7 @@ export default function PlaceBombModal({ visible, setVisible, setUser, setUpdate
     const [loading, setLoading] = useState(false);
     const [radius, setRadius] = useState(0.1);
 
+    // Récupérer la position précise actuelle lorsque la popup s'ouvre
     useEffect(() => {
         if (visible) {
             getCurrentPositionAsync({ accuracy: LocationAccuracy.Highest }).then(setLocation).catch(e => {
@@ -101,6 +102,7 @@ export default function PlaceBombModal({ visible, setVisible, setUser, setUpdate
     </Modal>);
 }
 
+// Fonction lorsque le bouton placer une bombe est appuyé
 async function placeBomb(location, message, radius, setLoading, setUser, setMessage, setVisible, setUpdate) {
     setLoading(true);
     try {

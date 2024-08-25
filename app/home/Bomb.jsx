@@ -13,6 +13,7 @@ export default function BombModal({ bomb, reply, defuse, setBomb, setUser, setUp
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState("");
 
+    // Remettre le message à "" lorsque la popup se ferme
     useEffect(() => {
         if (!bomb) setMessage("");
     }, [bomb]);
@@ -88,6 +89,7 @@ export default function BombModal({ bomb, reply, defuse, setBomb, setUser, setUp
     </Modal >);
 }
 
+// Fonction lorsque le bouton répondre est appuyé
 async function replyf(bomb, message, setLoading, setMessage, setUser, setBomb, setUpdate) {
     setLoading(true);
     try {

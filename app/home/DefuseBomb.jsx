@@ -9,6 +9,7 @@ export default function DefuseBombModal({ bomb, setBomb, setDefusedBomb, setUpda
     const [location, setLocation] = useState(null);
     const [loading, setLoading] = useState(false);
 
+    // Récupérer la position précise actuelle lorsque la popup s'ouvre
     useEffect(() => {
         if (bomb) {
             getCurrentPositionAsync({ accuracy: LocationAccuracy.Highest }).then(setLocation).catch(e => {
@@ -61,6 +62,7 @@ export default function DefuseBombModal({ bomb, setBomb, setDefusedBomb, setUpda
     </Modal >);
 }
 
+// Fonction lorsque le bouton de désamorçage est appuyé
 async function defuseBomb(bomb, location, setLoading, setBomb, setDefusedBomb, setUpdate) {
     setLoading(true);
     try {

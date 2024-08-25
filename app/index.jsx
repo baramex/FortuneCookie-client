@@ -3,7 +3,7 @@ import { CircleArrowIcon } from '../components/miscellaneous/Icons';
 import { useEffect, useState } from 'react';
 import { isAuthenticated, register } from '../scripts/authentification';
 import { getUser } from '../scripts/user';
-import { clearCachedSession, setCachedUser } from '../scripts/cache';
+import { setCachedUser } from '../scripts/cache';
 import { useRouter } from 'expo-router';
 
 export default function App({ }) {
@@ -11,6 +11,7 @@ export default function App({ }) {
     const [username, setUsername] = useState("");
     const router = useRouter();
 
+    // Vérifier si l'utilisateur a déjà un compte -> récupération du token et vérification avec le serveur
     useEffect(() => {
         (async () => {
             try {
@@ -46,6 +47,7 @@ export default function App({ }) {
     );
 }
 
+// Afficher une erreur d'authentification (à l'infini)
 function showAlert() {
     Alert.alert('Authentification', "Une erreur inattendue s'est produite, merci de réessayer ultérieurement.", [{
         text: 'OK',
@@ -53,6 +55,7 @@ function showAlert() {
     }], { cancelable: false });
 }
 
+// Lorsqu'un utilisateur crée son compte
 async function onRegister(setLoading, username, router) {
     setLoading(true);
     try {

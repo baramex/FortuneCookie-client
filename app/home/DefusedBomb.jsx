@@ -42,6 +42,7 @@ export default function DefusedBombModal({ defusedBomb, setDefusedBomb, setUser,
     </Modal >);
 }
 
+// Fonction lorsque le bouton répondre est appuyé
 async function reply(defusedBomb, message, setLoading, setMessage, setUser, setDefusedBomb, setUpdate) {
     setLoading(true);
     try {
