@@ -8,7 +8,7 @@ export function api(endpoint, method, data = undefined, customHeader = undefined
 
         axios({
             method,
-            url: "http://minecraft.baramex.me:3000" + endpoint,
+            url: "http://dev.baramex.me:3000" + endpoint,
             data,
             headers: customHeader,
             responseType,
@@ -17,7 +17,7 @@ export function api(endpoint, method, data = undefined, customHeader = undefined
             res(response.data);
         }).catch(err => {
             const response = err.response;
-            if (!response) return rej(new Error());
+            if (!response) return rej(err);
             const status = response.status;
             const time = err.response.headers["retry-after"];
             if (status === 429 && time && time * 1000 < 10000) {

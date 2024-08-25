@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import { ActivityIndicator, Alert, AppState, Pressable, ScrollView, Text, View } from "react-native";
 import { getCachedUser, setCachedUser } from "../../scripts/cache";
 import { Countdown } from "../../components/miscellaneous/Time";
-import { DropBombIcon } from "../../components/miscellaneous/Icons";
+import { ArrowPathIcon, DropBombIcon } from "../../components/miscellaneous/Icons";
 import clsx from "clsx";
-import { Accuracy, GeofencingEventType, hasStartedLocationUpdatesAsync, startGeofencingAsync, startLocationUpdatesAsync, stopGeofencingAsync, stopLocationUpdatesAsync, useBackgroundPermissions, useForegroundPermissions, watchPositionAsync } from "expo-location";
+import { Accuracy, GeofencingEventType, getCurrentPositionAsync, hasStartedLocationUpdatesAsync, startGeofencingAsync, startLocationUpdatesAsync, stopGeofencingAsync, stopLocationUpdatesAsync, useBackgroundPermissions, useForegroundPermissions, watchPositionAsync } from "expo-location";
 import { defineTask } from "expo-task-manager";
 import { fromDefuseToBomb, getBombs } from "../../scripts/bomb";
 import PlaceBombModal from "./PlaceBomb";
@@ -13,6 +13,7 @@ import DefusedBombModal from "./DefusedBomb";
 import { getUserBombs, getUserDefuses } from "../../scripts/user";
 import BombOverlay from "./BombOverlay";
 import BombModal from "./Bomb";
+import PushNotification from "react-native-push-notification";
 
 export default function Home() {
     const [user, setUser] = useState(null);
@@ -21,6 +22,7 @@ export default function Home() {
     // La tâche pour observer la position
     const [posJob, setPosJob] = useState(false);
     const [update, setUpdate] = useState(true);
+    const [refreshBombs, setRefreshBombs] = useState(false);
 
     // Les bombes à proximité
     const [closeBombs, setCloseBombs] = useState(null);
@@ -94,13 +96,33 @@ export default function Home() {
                 return;
             }
             if (eventType === GeofencingEventType.Enter) {
-                if (defusedBomb) return;
                 // background: envoyer notification
                 // foreground: afficher popup
                 setDefuseBomb(region);
                 console.log("enter", region);
                 console.log(AppState.currentState);
+                if (AppState.currentState === "background") {
+                    PushNotification.localNotification({
+                        title: 'Bombe trouvée !',
+                        playSound: true,
+                        soundName: 'default',
+                    });
+                }
             }
+        });
+    }, []);
+
+    // Configurer le système de notification
+    useEffect(() => {
+        PushNotification.configure({
+            onNotification: notification => console.log(notification),
+
+            permissions: {
+                alert: true,
+                badge: true,
+                sound: true,
+            },
+            popInitialNotification: true,
         });
     }, []);
 
@@ -130,6 +152,24 @@ export default function Home() {
             requestFgPermission();
         }
     }, [fgLocationStatus, locationStatus]);
+
+    // Actualiser la position et les bombes à proximité
+    useEffect(() => {
+        if (refreshBombs) {
+            getCurrentPositionAsync({ accuracy: Accuracy.Balanced }).then(loc => {
+                getBombs(loc.coords.longitude, loc.coords.latitude).then(b => {
+                    setCloseBombs(b);
+                }).catch(e => {
+                    Alert.alert("Récupération des bombes", e?.message || e || "Une erreur s'est produite.");
+                }).finally(() => {
+                    setRefreshBombs(false);
+                });
+            }).catch(e => {
+                setRefreshBombs(false);
+                Alert.alert("Récupération des bombes", e?.message || e || "Une erreur s'est produite.");
+            });
+        }
+    }, [refreshBombs])
 
     console.log(bombs);
     console.log(defuses);
@@ -161,6 +201,10 @@ export default function Home() {
                     <Text className={user?.remaining_bombs <= 0 ? "text-zinc-300" : "text-white"}>Placer une bombe</Text>
                 </Pressable>
                 <Text className="mt-2 text-zinc-900">Il y a <Text className="bg-zinc-600 text-white"> {closeBombs?.length} </Text> bombes dans un rayon de 5 km.</Text>
+                <Pressable onPress={() => setRefreshBombs(true)} className={clsx("rounded-md mt-4 text-xl px-6 py-2 flex flex-row gap-x-2 justify-center items-center", refreshBombs ? "bg-zinc-500" : "bg-zinc-700")} disabled={refreshBombs}>
+                    <ArrowPathIcon className={clsx("w-6 h-6", refreshBombs ? "text-zinc-300" : "text-white")} />
+                    <Text className={refreshBombs ? "text-zinc-300" : "text-white"}>Actualiser</Text>
+                </Pressable>
                 <View className="w-full mt-6 px-4 flex-1 pb-4">
                     <View className="h-1/2 pb-4">
                         <Text className="text-3xl mb-1">Vos bombes</Text>

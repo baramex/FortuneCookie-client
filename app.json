@@ -58,6 +58,14 @@
       ],
       "expo-background-fetch",
       "expo-task-manager"
-    ]
+    ],
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "cfeeb3bc-d81f-45ba-865e-7978e6d316df"
+      }
+    }
   }
 }
