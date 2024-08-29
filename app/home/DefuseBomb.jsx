@@ -2,7 +2,7 @@ import { getCurrentPositionAsync, LocationAccuracy } from "expo-location";
 import { DefuseBombIcon, XMarkIcon } from "../../components/miscellaneous/Icons";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Alert, Modal, Pressable, Text, View } from "react-native";
-import MapView, { Circle, Marker } from "react-native-maps";
+import MapView, { Circle, Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { defuseBomb as defuseBombApi } from "../../scripts/bomb";
 
 export default function DefuseBombModal({ bomb, setBomb, setDefusedBomb, setUpdate }) {
@@ -33,7 +33,7 @@ export default function DefuseBombModal({ bomb, setBomb, setDefusedBomb, setUpda
                         <XMarkIcon className="h-6 w-6 text-black" />
                     </Pressable>
                 </View>
-                <MapView mapType="satellite" region={{ latitude: location.coords.latitude, longitude: location.coords.longitude, latitudeDelta: 1 / 50 * bomb.radius / 1000, longitudeDelta: 1 / 50 * bomb.radius / 1000 }} className="h-56">
+                <MapView provider={PROVIDER_GOOGLE} mapType="satellite" region={{ latitude: location.coords.latitude, longitude: location.coords.longitude, latitudeDelta: 1 / 50 * bomb.radius / 1000, longitudeDelta: 1 / 50 * bomb.radius / 1000 }} className="h-56">
                     <Marker
                         coordinate={{ latitude: bomb.latitude, longitude: bomb.longitude }}
                         title="Position de la bombe"

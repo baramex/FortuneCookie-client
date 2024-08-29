@@ -1,7 +1,7 @@
 import { getCurrentPositionAsync, LocationAccuracy } from "expo-location";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Alert, Modal, Pressable, ScrollView, Text, TextInput, View } from "react-native";
-import MapView, { Circle, Marker } from "react-native-maps";
+import MapView, { Circle, Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { DropBombIcon, XMarkIcon } from "../../components/miscellaneous/Icons";
 import { plantBomb } from "../../scripts/bomb";
 import { getUser } from "../../scripts/user";
@@ -77,7 +77,7 @@ export default function PlaceBombModal({ visible, setVisible, setUser, setUpdate
                             </Pressable>
                         ))}
                     </View>
-                    <MapView mapType="satellite" region={{ latitude: location.coords.latitude, longitude: location.coords.longitude, latitudeDelta: 1 / 50 * radius, longitudeDelta: 1 / 50 * radius }} className="h-40">
+                    <MapView provider={PROVIDER_GOOGLE} mapType="satellite" region={{ latitude: location.coords.latitude, longitude: location.coords.longitude, latitudeDelta: 1 / 50 * radius, longitudeDelta: 1 / 50 * radius }} className="h-40">
                         <Marker
                             coordinate={{ latitude: location.coords.latitude, longitude: location.coords.longitude }}
                             title="Position de la bombe"

@@ -1,12 +1,12 @@
 import clsx from "clsx";
 import { Pressable, Text, View } from "react-native";
-import MapView, { Circle, Marker } from "react-native-maps";
+import MapView, { Circle, Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { BOMB_STATES } from "../../constants/bombs";
 import { FullDate } from "../../components/miscellaneous/Time";
 
 export default function BombOverlay({ bomb, defuse, type = "bomb", setShownBomb }) {
     return (<Pressable onPress={() => setShownBomb(bomb)} className="flex flex-row w-full h-28 bg-zinc-100 rounded-lg overflow-hidden my-2">
-        <MapView mapType="satellite" region={{ latitude: bomb.lat, longitude: bomb.lon, latitudeDelta: 1 / 50 * bomb.radius, longitudeDelta: 1 / 50 * bomb.radius }} className="w-1/3" pitchEnabled={false} scrollEnabled={false} rotateEnabled={false} zoomTapEnabled={false} zoomEnabled={false}>
+        <MapView provider={PROVIDER_GOOGLE} mapType="satellite" region={{ latitude: bomb.lat, longitude: bomb.lon, latitudeDelta: 1 / 50 * bomb.radius, longitudeDelta: 1 / 50 * bomb.radius }} className="w-1/3" pitchEnabled={false} scrollEnabled={false} rotateEnabled={false} zoomTapEnabled={false} zoomEnabled={false}>
             <Marker
                 coordinate={{ latitude: bomb.lat, longitude: bomb.lon }}
             />

@@ -13,7 +13,7 @@ import DefusedBombModal from "./DefusedBomb";
 import { getUserBombs, getUserDefuses } from "../../scripts/user";
 import BombOverlay from "./BombOverlay";
 import BombModal from "./Bomb";
-import PushNotification from "react-native-push-notification";
+//import PushNotification from "react-native-push-notification";
 
 export default function Home() {
     // Utilisateur mis en cache
@@ -108,18 +108,18 @@ export default function Home() {
                 console.log("enter", region);
                 console.log(AppState.currentState);
                 if (AppState.currentState === "background") {
-                    PushNotification.localNotification({
+                    /*PushNotification.localNotification({
                         title: 'Bombe trouvée !',
                         playSound: true,
                         soundName: 'default',
-                    });
+                    });*/
                 }
             }
         });
     }, []);
 
     // Configurer le système de notification
-    useEffect(() => {
+    /*useEffect(() => {
         PushNotification.configure({
             onNotification: notification => console.log(notification),
 
@@ -130,7 +130,7 @@ export default function Home() {
             },
             popInitialNotification: true,
         });
-    }, []);
+    }, []);*/
 
     // Récupérer l'utilisateur en cache pour le mettre dans l'état "user"
     useEffect(() => {
@@ -206,7 +206,7 @@ export default function Home() {
                     <Text className={user?.remaining_bombs <= 0 ? "text-zinc-300" : "text-white"}>Placer une bombe</Text>
                 </Pressable>
                 <Text className="mt-2 text-zinc-900">Il y a <Text className="bg-zinc-600 text-white"> {closeBombs?.length} </Text> bombes dans un rayon de 5 km.</Text>
-                <Pressable onPress={() => setRefreshBombs(true)} className={clsx("rounded-md mt-4 text-xl px-6 py-2 flex flex-row gap-x-2 justify-center items-center", refreshBombs ? "bg-zinc-500" : "bg-zinc-700")} disabled={refreshBombs}>
+                <Pressable onPress={() => { setRefreshBombs(true); setUpdate(true); }} className={clsx("rounded-md mt-4 text-xl px-6 py-2 flex flex-row gap-x-2 justify-center items-center", refreshBombs ? "bg-zinc-500" : "bg-zinc-700")} disabled={refreshBombs}>
                     <ArrowPathIcon className={clsx("w-6 h-6", refreshBombs ? "text-zinc-300" : "text-white")} />
                     <Text className={refreshBombs ? "text-zinc-300" : "text-white"}>Actualiser</Text>
                 </Pressable>

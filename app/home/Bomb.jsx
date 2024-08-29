@@ -1,5 +1,5 @@
 import { ActivityIndicator, Alert, Modal, Pressable, SafeAreaView, ScrollView, Text, TextInput, View } from "react-native";
-import MapView, { Circle, Marker } from "react-native-maps";
+import MapView, { Circle, Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { BOMB_RADIUS, BOMB_STATES } from "../../constants/bombs";
 import { DateTime } from "../../components/miscellaneous/Time";
 import { DropBombIcon, XMarkIcon } from "../../components/miscellaneous/Icons";
@@ -32,7 +32,7 @@ export default function BombModal({ bomb, reply, defuse, setBomb, setUser, setUp
                             <XMarkIcon className="h-6 w-6 text-black" />
                         </Pressable>
                     </View>
-                    <MapView mapType="satellite" region={{ latitude: bomb.lat, longitude: bomb.lon, latitudeDelta: 1 / 50 * bomb.radius, longitudeDelta: 1 / 50 * bomb.radius }} className="h-48 mt-2">
+                    <MapView provider={PROVIDER_GOOGLE} mapType="satellite" region={{ latitude: bomb.lat, longitude: bomb.lon, latitudeDelta: 1 / 50 * bomb.radius, longitudeDelta: 1 / 50 * bomb.radius }} className="h-48 mt-2">
                         <Marker
                             coordinate={{ latitude: bomb.lat, longitude: bomb.lon }}
                             title="Position de la bombe"
