@@ -13,7 +13,16 @@ import DefusedBombModal from "./DefusedBomb";
 import { getUserBombs, getUserDefuses } from "../../scripts/user";
 import BombOverlay from "./BombOverlay";
 import BombModal from "./Bomb";
-//import PushNotification from "react-native-push-notification";
+import { AndroidImportance, getPermissionsAsync, requestPermissionsAsync, scheduleNotificationAsync, setNotificationChannelAsync, setNotificationHandler } from "expo-notifications";
+
+// Initialiser le système de notification
+setNotificationHandler({
+    handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: true,
+        shouldSetBadge: true
+    }),
+});
 
 export default function Home() {
     // Utilisateur mis en cache
@@ -38,9 +47,9 @@ export default function Home() {
 
     // Afficher ou non la modal pour placer une bombe
     const [placeBomb, setPlaceBomb] = useState(false);
-    // Bome qui peut être désarmocée (modal)
+    // Bome qui peut être désamorcée (modal)
     const [defuseBomb, setDefuseBomb] = useState(null);
-    // Bombe désarmocée (modal)
+    // Bombe désamorcée (modal)
     const [defusedBomb, setDefusedBomb] = useState(null);
     // Visualiser une bombe
     const [shownBomb, setShownBomb] = useState(null);
@@ -56,7 +65,7 @@ export default function Home() {
         }
     }, [shownBomb]);
 
-    // Récupérer les désarmoçages au début ou lorsqu'une nouvelle bombe est désarmocée
+    // Récupérer les désamorçages au début ou lorsqu'une nouvelle bombe est désamorcée
     useEffect(() => {
         if (update) {
             setUpdate(false);
@@ -87,7 +96,7 @@ export default function Home() {
         }
     }, [closeBombs]);
 
-    // Lorsqu'une bombe est désarmocée, la retirer des bombes à proximité
+    // Lorsqu'une bombe est désamorcée, la retirer des bombes à proximité
     useEffect(() => {
         if (defusedBomb) {
             setCloseBombs(bombs => bombs.filter(b => b.id !== defusedBomb.bombId));
@@ -108,29 +117,17 @@ export default function Home() {
                 console.log("enter", region);
                 console.log(AppState.currentState);
                 if (AppState.currentState === "background") {
-                    /*PushNotification.localNotification({
-                        title: 'Bombe trouvée !',
-                        playSound: true,
-                        soundName: 'default',
-                    });*/
+                    scheduleNotificationAsync({
+                        content: {
+                            title: 'Bombe trouvée !',
+                            body: "Vous venez de rentrer dans le cercle d'action de la bombe.",
+                        },
+                        trigger: null,
+                    });
                 }
             }
         });
     }, []);
-
-    // Configurer le système de notification
-    /*useEffect(() => {
-        PushNotification.configure({
-            onNotification: notification => console.log(notification),
-
-            permissions: {
-                alert: true,
-                badge: true,
-                sound: true,
-            },
-            popInitialNotification: true,
-        });
-    }, []);*/
 
     // Récupérer l'utilisateur en cache pour le mettre dans l'état "user"
     useEffect(() => {
@@ -178,6 +175,26 @@ export default function Home() {
         }
     }, [refreshBombs]);
 
+    // Demander la permission d'envoyer des notifications et configurer un canal de notification
+    useEffect(() => {
+        (async () => {
+            const { status: existingStatus } = await getPermissionsAsync();
+            let finalStatus = existingStatus;
+            if (existingStatus !== 'granted') {
+                const { status } = await requestPermissionsAsync();
+                finalStatus = status;
+            }
+            else {
+                await setNotificationChannelAsync('default', {
+                    name: 'default',
+                    importance: AndroidImportance.DEFAULT,
+                    vibrationPattern: [0, 250, 250, 250],
+                    lightColor: '#FF231F7C',
+                });
+            }
+        });
+    }, []);
+
     // Date pour récupérer une bombe supplémentaire
     const newDayDate = new Date();
     newDayDate.setUTCHours(0, 0, 0, 0);
@@ -210,20 +227,20 @@ export default function Home() {
                     <ArrowPathIcon className={clsx("w-6 h-6", refreshBombs ? "text-zinc-300" : "text-white")} />
                     <Text className={refreshBombs ? "text-zinc-300" : "text-white"}>Actualiser</Text>
                 </Pressable>
-                <View className="w-full mt-6 px-4 flex-1 pb-4">
-                    <View className="h-1/2 pb-4">
+                <ScrollView className="w-full mt-6 px-4 pb-4">
+                    <View className="pb-4">
                         <Text className="text-3xl mb-1">Vos bombes</Text>
-                        <ScrollView>
+                        <View>
                             {bombs ? bombs.length === 0 ? <Text className="text-zinc-600 mx-auto">Aucune</Text> : bombs.map(b => <BombOverlay key={b.id} setShownBomb={setShownBomb} bomb={b} />) : <ActivityIndicator />}
-                        </ScrollView>
+                        </View>
                     </View>
-                    <View className="h-1/2">
+                    <View>
                         <Text className="text-3xl mb-1">Vos désamorçages</Text>
-                        <ScrollView>
+                        <View>
                             {defuses ? defuses.length === 0 ? <Text className="text-zinc-600 mx-auto">Aucun</Text> : defuses.map(d => <BombOverlay key={d.id} setShownBomb={setShownBomb} type="defuse" defuse={d} bomb={fromDefuseToBomb(d, bombs)} />) : <ActivityIndicator />}
-                        </ScrollView>
+                        </View>
                     </View>
-                </View>
+                </ScrollView>
             </>
             : <ActivityIndicator size="large" />
         }

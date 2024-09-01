@@ -59,7 +59,7 @@ export default function BombModal({ bomb, reply, defuse, setBomb, setUser, setUp
                             <Text className={clsx(BOMB_STATES[bomb.state].textColor, "text-lg")}>{BOMB_STATES[bomb.state].text}</Text>
                         </View>}
                     </View>
-                    {bomb.reply_id && bomb.reply_state === 1 && <Text className="mt-1 italic text-zinc-800">La bombe réponse est encore active à proximité de votre bombe.</Text>}
+                    {bomb.reply_id && bomb.reply_state === 1 && !reply && <Text className="mt-1 italic text-zinc-800">La bombe réponse est encore active à proximité de votre bombe.</Text>}
                     {bomb.reference && <View className="flex flex-row items-center mt-3">
                         <Text className="text-lg">Réponse à</Text>
                         <Pressable className="px-1.5 ml-1 bg-zinc-700 rounded-lg"><Pressable onPress={() => setBomb(bomb.reference)}><Text className="text-white text-lg">Cette bombe</Text></Pressable></Pressable>

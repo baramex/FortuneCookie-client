@@ -19,7 +19,7 @@ export default function DefusedBombModal({ defusedBomb, setDefusedBomb, setUser,
             <SafeAreaView>
                 <ScrollView className="px-4">
                     <View className="flex flex-row justify-between items-center mb-5 mt-6">
-                        <Text className="text-3xl">Bombe désarmocée</Text>
+                        <Text className="text-3xl">Bombe désamorcée</Text>
                         <Pressable onPress={() => setDefusedBomb(null)}>
                             <XMarkIcon className="h-6 w-6 text-black" />
                         </Pressable>
