@@ -111,11 +111,7 @@ export default function Home() {
                 return;
             }
             if (eventType === GeofencingEventType.Enter) {
-                // background: envoyer notification
-                // foreground: afficher popup
                 setDefuseBomb(region);
-                console.log("enter", region);
-                console.log(AppState.currentState);
                 if (AppState.currentState === "background") {
                     scheduleNotificationAsync({
                         content: {
