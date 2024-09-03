@@ -8,7 +8,7 @@ export function api(endpoint, method, data = undefined, customHeader = undefined
 
         axios({
             method,
-            url: "http://dev.baramex.me:3000" + endpoint,
+            url: "https://dev.baramex.me:3000" + endpoint,
             data,
             headers: customHeader,
             responseType,
