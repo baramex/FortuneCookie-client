@@ -37,7 +37,7 @@ export function XMarkIcon(props) {
     )
 }
 
-export function DropBombIcon(props) {
+export function PlantCookieIcon(props) {
     return (
         <Svg
             xmlns="http://www.w3.org/2000/svg"
@@ -102,7 +102,7 @@ export function ArrowPathIcon(props) {
     )
   }
 
-export function DefuseBombIcon(props) {
+export function BreakCookieIcon(props) {
     return (
         <Svg
             xmlns="http://www.w3.org/2000/svg"

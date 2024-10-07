@@ -8,7 +8,7 @@ export function api(endpoint, method, data = undefined, customHeader = undefined
 
         axios({
             method,
-            url: "https://blastnote.baramex.me" + endpoint,
+            url: "https://fortunecookie.baramex.me" + endpoint,
             data,
             headers: customHeader,
             responseType,

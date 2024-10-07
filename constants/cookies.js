@@ -1,22 +1,22 @@
-export const BOMB_STATES = {
+export const COOKIE_STATES = {
     1: {
-        text: "Active",
+        text: "Actif",
         bgColor: "bg-green-500",
         textColor: "text-white"
     },
     2: {
-        text: "Désamorcée",
+        text: "Cassé",
         bgColor: "bg-zinc-900",
         textColor: "text-white"
     },
     3: {
-        text: "Répondue",
+        text: "Répondu",
         bgColor: "bg-blue-500",
         textColor: "text-white"
     }
 }
 
-export const BOMB_RADIUS = [
+export const COOKIE_RADIUS = [
     {
         value: 0.01,
         name: "10m",
