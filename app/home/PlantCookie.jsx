@@ -11,6 +11,8 @@ import { setCachedUser } from "../../scripts/cache";
 import { COOKIE_RADIUS } from "../../constants/cookies";
 
 export default function PlantCookieModal({ visible, setVisible, setUser, setUpdate }) {
+    // les états visible, setVisible, setUser et setUpdate proviennent de l'appel de cette vue (dans index.js)
+
     const [message, setMessage] = useState("");
     const [location, setLocation] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -26,6 +28,7 @@ export default function PlantCookieModal({ visible, setVisible, setUser, setUpda
         }
     }, [visible]);
 
+    // Visuel: fenêtre contextuelle pour le placement d'un cookie, contenant une carte, un champ pour le message ainsi qu'une sélection d'un rayon
     return (<Modal
         animationType="slide"
         visible={visible}
@@ -104,15 +107,15 @@ export default function PlantCookieModal({ visible, setVisible, setUser, setUpda
 
 // Fonction lorsque le bouton placer un fortune cookie est appuyé
 async function placeCookie(location, message, radius, setLoading, setUser, setMessage, setVisible, setUpdate) {
-    setLoading(true);
+    setLoading(true); // Animation de chargement
     try {
-        await plantCookie(location.coords.longitude, location.coords.latitude, message, radius);
-        setVisible(false);
-        setMessage("");
-        const user = await getUser();
+        await plantCookie(location.coords.longitude, location.coords.latitude, message, radius); // Envoyer au serveur le placement d'un cookie
+        setVisible(false); // Fermer la fenêtre contextuelle
+        setMessage(""); // Remettre le champ du message à zéro
+        const user = await getUser(); // Mettre à jour l'utilisateur (son nombre de cookies disponibles)
         await setCachedUser(user);
         setUser(user);
-        setUpdate(true);
+        setUpdate(true); // Mettre à jour la liste des cookies et des cassages
         Alert.alert("Placement de fortune cookie", "Votre fortune cookie a été placé avec succès !! Vous serez averti si quelqu'un le casse pour découvrir votre message.");
     } catch (error) {
         Alert.alert('Placement de fortune cookie', error?.message || error || "Une erreur s'est produite.");

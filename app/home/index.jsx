@@ -120,9 +120,9 @@ export default function Home() {
                 return;
             }
             if (eventType === GeofencingEventType.Enter) {
-                setBreakableCookie(region);
+                setBreakableCookie(region); // Ouvrir la fenêtre contextuelle pour le cassage d'un cookie
                 if (AppState.currentState === "background") {
-                    scheduleNotificationAsync({
+                    scheduleNotificationAsync({ // Envoyer une notification si l'application est en arrière plan
                         content: {
                             title: 'Fortune cookie trouvé !',
                             body: "Vous venez de rentrer dans la zone d'action d'un fortune cookie.",
@@ -146,7 +146,8 @@ export default function Home() {
             if (locationStatus.granted) {
                 setPosJob(true);
                 watchPositionAsync({ timeInterval: 10000, distanceInterval: 1000, accuracy: Accuracy.Balanced }, loc => {
-                    getCookies(loc.coords.longitude, loc.coords.latitude).then(b => {
+                    // À chaque mise à jour de la position
+                    getCookies(loc.coords.longitude, loc.coords.latitude).then(b => { // Requête au serveur pour récupérer les cookies à proximité
                         setCloseCookies(b);
                     }).catch(e => {
                         Alert.alert("Récupération des fortunes cookies", e?.message || e || "Une erreur s'est produite.");
@@ -162,7 +163,7 @@ export default function Home() {
         }
     }, [fgLocationStatus, locationStatus]);
 
-    // Actualiser la position et les cookies à proximité
+    // Actualiser la position et les cookies à proximité (de manière forcée)
     useEffect(() => {
         if (refreshCookies) {
             getCurrentPositionAsync({ accuracy: Accuracy.Balanced }).then(loc => {
@@ -208,6 +209,7 @@ export default function Home() {
     // Décrit si les deux types de position sont acceptés
     const locationEnabled = fgLocationStatus?.granted && locationStatus?.granted;
 
+    // Visuel: page d'accueil contenant toutes les fenêtres contextuelles (initialement non utilisées/ouvertes), ainsi que la liste des cookies et des cassages, le nom d'utilisateur, le nombre de cookies disponibles, le nombre de cookies dans un rayon de 5 km ainsi qu'un bouton pour poser un cookie
     return (<View className={clsx("mt-6 flex-1 flex items-center", (!user || !locationEnabled) && "justify-center")}>
         {user ? !locationEnabled ?
             <Text className="text-2xl">Veuillez autoriser la localisation pour continuer.</Text>

@@ -6,9 +6,12 @@ import { setCachedUser } from "../../scripts/cache";
 import { getUser } from "../../scripts/user";
 
 export default function BrokenCookieModal({ brokenCookie, setBrokenCookie, setUser, setUpdate }) {
+    // les états brokenCookie, setBrokenCookie, setUser et setUpdate proviennent de l'appel de cette vue (dans index.js)
+    
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState("");
 
+    // Visuel: fenêtre contextuelle avec un fortune cookie cassé, son message, et la possibilité d'y répondre
     return (<Modal
         animationType="none"
         visible={!!brokenCookie}
@@ -44,15 +47,15 @@ export default function BrokenCookieModal({ brokenCookie, setBrokenCookie, setUs
 
 // Fonction lorsque le bouton répondre est appuyé
 async function reply(brokenCookie, message, setLoading, setMessage, setUser, setBrokenCookie, setUpdate) {
-    setLoading(true);
+    setLoading(true); // Animation de chargement
     try {
-        await replyCookie(brokenCookie.cookieId, message);
-        setBrokenCookie(null);
-        setMessage("");
-        const user = await getUser();
+        await replyCookie(brokenCookie.cookieId, message); // Envoyer au serveur la réponse au cookie
+        setBrokenCookie(null); // Fermer la fenêtre contextuelle
+        setMessage(""); // Remettre le champ du message à zéro
+        const user = await getUser(); // Mettre à jour l'utilisateur (son nombre de cookies disponibles)
         await setCachedUser(user);
         setUser(user);
-        setUpdate(true);
+        setUpdate(true); // Mettre à jour la liste des cookies et des cassages
         Alert.alert("Réponse à un fortune cookie", "Votre réponse a été posée ! Si elle est découverte, vous serez averti !");
     } catch (error) {
         Alert.alert("Réponse à un fortune cookie", error?.message || error || "Une erreur s'est produite.");

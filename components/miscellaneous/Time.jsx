@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 
+// Élément visuel d'un compteur à rebours en heures et en minutes qui se met à jour automatiquement, lié à une date
 export function Countdown({ date, run }) {
     const [time, setTime] = useState(date - Date.now());
 
@@ -20,6 +21,7 @@ export function Countdown({ date, run }) {
     return (<>{hours.toString().padStart(2, "0")}h{minutes.toString().padStart(2, "0")}m</>);
 }
 
+// Élément visuel d'un compteur à rebours en heures, en minutes et en secondes qui se met à jour automatiquement, lié à un temps en millisecondes
 export function CountdownTime({ time, run }) {
     const [remaining, setRemaining] = useState(time);
 
@@ -44,10 +46,12 @@ export function CountdownTime({ time, run }) {
     return (<>{hours ? hours.toString().padStart(2, "0") + "h" : ""}{minutes ? minutes.toString().padStart(2, "0") + "m" : ""}{seconds && !minutes && !hours ? seconds : ""}</>);
 }
 
+// Élément visuel popur afficher une date complète
 export function FullDate({ date }) {
     return (<>{date.getDate().toString().padStart(2, "0")}/{(date.getMonth() + 1).toString().padStart(2, "0")}/{date.getFullYear().toString().slice(2).padStart(2, "0")}</>);
 }
 
+// Élément visuel popur afficher une date complète suivie de l'heure
 export function DateTime({ date }) {
     return (<>{date.getDate().toString().padStart(2, "0")}/{(date.getMonth() + 1).toString().padStart(2, "0")}/{date.getFullYear().toString().slice(2).padStart(2, "0")} à {date.getHours().toString().padStart(2, "0")}:{date.getMinutes().toString().padStart(2, "0")}</>);
 }

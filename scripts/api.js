@@ -1,8 +1,8 @@
 import axios from "axios";
 
+// Fonction générique pour faire une réponse api, en prenant en compte la possibilité d'être "rate-limited", en cas d'un trop grand nombre de requêtes en un moment donné
 export function api(endpoint, method, data = undefined, customHeader = undefined, responseType = undefined) {
     return new Promise((res, rej) => {
-        // -> axios clear data
         const copyData = data ? { ...data } : undefined;
         const copyHeader = customHeader ? { ...customHeader } : undefined;
 

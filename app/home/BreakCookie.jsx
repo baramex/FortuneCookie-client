@@ -7,6 +7,8 @@ import { breakCookie as breakCookieApi } from "../../scripts/cookie";
 import { CountdownTime } from "../../components/miscellaneous/Time";
 
 export default function BreakCookieModal({ cookie, setCookie, setBrokenCookie, setUpdate }) {
+    // les états cookie, setCookie, setBrokenCookie et setUpdate proviennent de l'appel de cette vue (dans index.js)
+
     const [location, setLocation] = useState(null);
     const [loading, setLoading] = useState(false);
 
@@ -25,8 +27,7 @@ export default function BreakCookieModal({ cookie, setCookie, setBrokenCookie, s
         }
     }, [cookie]);
 
-    //
-
+    // Visuel: fenêtre contextuelle pour casser un fortune cookie avec carte, compteur à rebours et énigme
     return (<Modal
         animationType="slide"
         visible={!!cookie}
@@ -83,11 +84,13 @@ export default function BreakCookieModal({ cookie, setCookie, setBrokenCookie, s
     </Modal >);
 }
 
+// Générer 2 nombres aléatoires pour l'énigme
 function startEnigma(setX, setY) {
     setX(Math.round(Math.random() * 30));
     setY(Math.round(Math.random() * 30));
 }
 
+// Valider l'addition des 2 nombres: si oui, casser le cookie
 function validateEnigma(x, y, input, setX, setY, cookie, location, setLoading, setCookie, setBrokenCookie, setUpdate) {
     setX(undefined);
     setY(undefined);
@@ -101,12 +104,12 @@ function validateEnigma(x, y, input, setX, setY, cookie, location, setLoading, s
 
 // Fonction lorsque l'énigme est correctement résolue
 async function breakCookie(cookie, location, setLoading, setCookie, setBrokenCookie, setUpdate) {
-    setLoading(true);
+    setLoading(true); // Animation de chargement
     try {
-        const breakage = await breakCookieApi(cookie.identifier, location.coords.longitude, location.coords.latitude);
-        setBrokenCookie(breakage);
-        setCookie(null);
-        setUpdate(true);
+        const breakage = await breakCookieApi(cookie.identifier, location.coords.longitude, location.coords.latitude); // Envoyer le cassage du cookie au serveur
+        setBrokenCookie(breakage); // Ouvrir la fenêtre contextuelle montrant le cookie cassé
+        setCookie(null); // Fermer la fenêtre contextuelle
+        setUpdate(true); // Mettre à jour la liste des cookies et des cassages
     } catch (error) {
         Alert.alert("Cassage de fortune cookie", error?.message || error || "Une erreur s'est produite.")
     } finally {

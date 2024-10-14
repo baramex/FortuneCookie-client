@@ -10,14 +10,17 @@ import { setCachedUser } from "../../scripts/cache";
 import { replyCookie } from "../../scripts/cookie";
 
 export default function CookieModal({ cookie, reply, breakage, setCookie, setUser, setUpdate }) {
+    // les états cookie, reply, breakage, setCookie, setUser et setUpdate proviennent de l'appel de cette vue (dans index.js)
+    
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState("");
 
-    // Remettre le message à "" lorsque la popup se ferme
+    // Remettre le champ du message à zéro lorsque la popup se ferme
     useEffect(() => {
         if (!cookie) setMessage("");
     }, [cookie]);
 
+    // Visuel: fenêtre contextuelle pour afficher les détails d'un cookie: son état, une carte, son message, les dates de création, de cassage et de réponse, et sa réponse (dans le cas où le cookie a été répondu)
     return (<Modal
         animationType="slide"
         visible={!!cookie}
@@ -91,15 +94,15 @@ export default function CookieModal({ cookie, reply, breakage, setCookie, setUse
 
 // Fonction lorsque le bouton répondre est appuyé
 async function replyf(cookie, message, setLoading, setMessage, setUser, setCookie, setUpdate) {
-    setLoading(true);
+    setLoading(true); // Animation de chargement
     try {
-        await replyCookie(cookie.id, message);
-        setCookie(null);
-        setMessage("");
-        const user = await getUser();
+        await replyCookie(cookie.id, message); // Envoyer au serveur la réponse au cookie
+        setCookie(null); // Fermer la fenêtre contextuelle
+        setMessage(""); // Remettre le champ du message à zéro
+        const user = await getUser(); // Mettre à jour l'utilisateur (son nombre de cookies disponibles)
         await setCachedUser(user);
         setUser(user);
-        setUpdate(true);
+        setUpdate(true); // Mettre à jour la liste des cookies et des cassages
         Alert.alert("Réponse à un fortune cookie", "Votre réponse a été posée ! Si elle est découverte, vous serez averti !");
     } catch (error) {
         Alert.alert("Réponse à un fortune cookie", error?.message || error || "Une erreur s'est produite.");

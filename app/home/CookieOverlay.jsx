@@ -5,6 +5,9 @@ import { COOKIE_STATES } from "../../constants/cookies";
 import { FullDate } from "../../components/miscellaneous/Time";
 
 export default function CookieOverlay({ cookie, breakage, type = "cookie", setShownCookie }) {
+    // les états cookie, breakage, type et setShownCookie proviennent de l'appel de cette vue (dans index.js)
+
+    // Visuel: correspond à une div/bouton contenant une petite intégration d'une carte ainsi que les doonées principales d'un cookie (état, s'il a été répondu)
     return (<Pressable onPress={() => setShownCookie(cookie)} className="flex flex-row w-full h-28 bg-zinc-100 rounded-lg overflow-hidden my-2">
         <MapView provider={PROVIDER_GOOGLE} mapType="satellite" region={{ latitude: cookie.lat, longitude: cookie.lon, latitudeDelta: 1 / 50 * cookie.radius, longitudeDelta: 1 / 50 * cookie.radius }} className="w-1/3" pitchEnabled={false} scrollEnabled={false} rotateEnabled={false} zoomTapEnabled={false} zoomEnabled={false}>
             <Marker

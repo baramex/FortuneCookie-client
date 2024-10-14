@@ -15,8 +15,8 @@ export default function App({ }) {
     useEffect(() => {
         (async () => {
             try {
-                if (await isAuthenticated()) {
-                    const user = await getUser();
+                if (await isAuthenticated()) { // Si une clé est enregistrée dans les fichiers de l'application
+                    const user = await getUser(); // Récupérer l'utilisateur avec cette clé
                     await setCachedUser(user);
                 }
                 else {
@@ -31,6 +31,7 @@ export default function App({ }) {
         })();
     }, []);
 
+    // Visuel: titre bienvenue avec un champ pour le nom d'utilisateur et un bouton pour continuer
     return (
         <View className="flex-1 items-center justify-center">
             {loading ?
@@ -59,9 +60,9 @@ function showAlert() {
 async function onRegister(setLoading, username, router) {
     setLoading(true);
     try {
-        const user = await register(username);
-        await setCachedUser(user);
-        router.replace("/home");
+        const user = await register(username); // Envoyer au serveur la création d'un compte
+        await setCachedUser(user); // Enregistrer localement l'utilisateur
+        router.replace("/home"); // Se diriger vers la page d'accueil
     } catch (error) {
         setLoading(false);
         Alert.alert('Création de compte', error?.message || error || "Une erreur s'est produite.");
