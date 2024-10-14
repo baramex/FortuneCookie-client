@@ -6,6 +6,7 @@ import { getUser } from '../scripts/user';
 import { setCachedUser } from '../scripts/cache';
 import { useRouter } from 'expo-router';
 
+// Page d'inscription
 export default function App({ }) {
     const [loading, setLoading] = useState(true);
     const [username, setUsername] = useState("");

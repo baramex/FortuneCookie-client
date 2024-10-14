@@ -46,12 +46,12 @@ export function CountdownTime({ time, run }) {
     return (<>{hours ? hours.toString().padStart(2, "0") + "h" : ""}{minutes ? minutes.toString().padStart(2, "0") + "m" : ""}{seconds && !minutes && !hours ? seconds : ""}</>);
 }
 
-// Élément visuel popur afficher une date complète
+// Élément visuel pour afficher une date complète
 export function FullDate({ date }) {
     return (<>{date.getDate().toString().padStart(2, "0")}/{(date.getMonth() + 1).toString().padStart(2, "0")}/{date.getFullYear().toString().slice(2).padStart(2, "0")}</>);
 }
 
-// Élément visuel popur afficher une date complète suivie de l'heure
+// Élément visuel pour afficher une date complète suivie de l'heure
 export function DateTime({ date }) {
     return (<>{date.getDate().toString().padStart(2, "0")}/{(date.getMonth() + 1).toString().padStart(2, "0")}/{date.getFullYear().toString().slice(2).padStart(2, "0")} à {date.getHours().toString().padStart(2, "0")}:{date.getMinutes().toString().padStart(2, "0")}</>);
 }

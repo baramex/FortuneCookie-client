@@ -24,6 +24,7 @@ setNotificationHandler({
     }),
 });
 
+// Page d'accueil
 export default function Home() {
     // Utilisateur mis en cache
     const [user, setUser] = useState(null);
