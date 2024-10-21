@@ -40,7 +40,6 @@ export function XMarkIcon(props) {
 export function PlantCookieIcon(props) {
     return (
         <Svg
-            fill="#000"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 29.807 29.807"
             xmlSpace="preserve"
