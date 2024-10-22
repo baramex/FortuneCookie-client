@@ -151,7 +151,7 @@ export default function Home() {
                     getCookies(loc.coords.longitude, loc.coords.latitude).then(b => { // Requête au serveur pour récupérer les cookies à proximité
                         setCloseCookies(b);
                     }).catch(e => {
-                        Alert.alert("Récupération des fortunes cookies", e?.message || e || "Une erreur s'est produite.");
+                        Alert.alert("Récupération des fortune cookies", e?.message || e || "Une erreur s'est produite.");
                     });
                 });
             }
@@ -171,13 +171,13 @@ export default function Home() {
                 getCookies(loc.coords.longitude, loc.coords.latitude).then(b => {
                     setCloseCookies(b);
                 }).catch(e => {
-                    Alert.alert("Récupération des fortunes cookies", e?.message || e || "Une erreur s'est produite.");
+                    Alert.alert("Récupération des fortune cookies", e?.message || e || "Une erreur s'est produite.");
                 }).finally(() => {
                     setRefreshCookies(false);
                 });
             }).catch(e => {
                 setRefreshCookies(false);
-                Alert.alert("Récupération des fortunes cookies", e?.message || e || "Une erreur s'est produite.");
+                Alert.alert("Récupération des fortune cookies", e?.message || e || "Une erreur s'est produite.");
             });
         }
     }, [refreshCookies]);
@@ -220,7 +220,7 @@ export default function Home() {
                 <BrokenCookieModal setUpdate={setUpdate} brokenCookie={brokenCookie} setBrokenCookie={setBrokenCookie} setUser={setUser} />
                 <CookieModal setUpdate={setUpdate} setUser={setUser} breakage={shownCookie && breakages.find(a => a.cookie_id === shownCookie.id)} reply={shownCookie && shownCookie.reply_id ? breakages.some(a => a.cookie_id === shownCookie.reply_id) ? fromBreakageToCookie(breakages.find(a => a.cookie_id === shownCookie.reply_id), cookies) : cookies.find(b => b.id === shownCookie.reply_id) : undefined} cookie={shownCookie} setCookie={setShownCookie} />
                 <Text className="text-2xl">Bonjour {user?.username}</Text>
-                <Text className="mt-2 text-zinc-700">Vous avez <Text className="bg-zinc-600 text-white"> {user?.remaining_cookies} </Text> /3 fortunes cookies restants.</Text>
+                <Text className="mt-2 text-zinc-700">Vous avez <Text className="bg-zinc-600 text-white"> {user?.remaining_cookies} </Text> /3 fortune cookies restants.</Text>
                 {user?.remaining_cookies < 3 && <View className="rounded-full bg-red-600 px-4 py-1 mt-2"><Text className="text-xs text-white font-medium">+1 dans <Countdown run={() => {
                     user.remaining_cookies++;
                     setUser(user);
@@ -230,14 +230,14 @@ export default function Home() {
                     <PlantCookieIcon className={clsx("w-6 h-6", user?.remaining_cookies <= 0 ? "fill-zinc-300" : "fill-white")} />
                     <Text className={user?.remaining_cookies <= 0 ? "text-zinc-300" : "text-white"}>Placer un fortune cookie</Text>
                 </Pressable>
-                <Text className="mt-2 text-zinc-900">Il y a <Text className="bg-zinc-600 text-white"> {closeCookies?.length} </Text> fortunes cookies dans un rayon de 5 km.</Text>
+                <Text className="mt-2 text-zinc-900">Il y a <Text className="bg-zinc-600 text-white"> {closeCookies?.length} </Text> fortune cookies dans un rayon de 5 km.</Text>
                 <Pressable onPress={() => { setRefreshCookies(true); setUpdate(true); }} className={clsx("rounded-md mt-4 text-xl px-6 py-2 flex flex-row gap-x-2 justify-center items-center", refreshCookies ? "bg-zinc-500" : "bg-zinc-700")} disabled={refreshCookies}>
                     <ArrowPathIcon className={clsx("w-6 h-6", refreshCookies ? "text-zinc-300" : "text-white")} />
                     <Text className={refreshCookies ? "text-zinc-300" : "text-white"}>Actualiser</Text>
                 </Pressable>
                 <ScrollView className="w-full mt-6 px-4 pb-4">
                     <View className="pb-4">
-                        <Text className="text-3xl mb-1">Vos fortunes cookies</Text>
+                        <Text className="text-3xl mb-1">Vos fortune cookies</Text>
                         <View>
                             {cookies ? cookies.length === 0 ? <Text className="text-zinc-600 mx-auto">Aucun</Text> : cookies.map(b => <CookieOverlay key={b.id} setShownCookie={setShownCookie} cookie={b} />) : <ActivityIndicator />}
                         </View>
